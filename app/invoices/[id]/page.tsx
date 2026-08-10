@@ -10,9 +10,10 @@ export const dynamic = "force-dynamic";
 
 const WORD: Record<string, string> = {
   draft: "Draft", sent: "Waiting for payment", paid: "Paid", overdue: "Overdue",
+  void: "Voided — not payable",
 };
 const CHIP: Record<string, string> = {
-  draft: "bg-gold2 text-gold", sent: "bg-tint text-brand",
+  draft: "bg-gold2 text-gold", sent: "bg-tint text-brand", void: "bg-wash text-soft",
   paid: "bg-mint text-green", overdue: "bg-red2 text-red",
 };
 const initials = (n = "") =>
