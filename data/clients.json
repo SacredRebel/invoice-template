@@ -1,0 +1,18 @@
+[
+  {
+    "id": "insurance-co",
+    "name": "Insurance Company",
+    "contact": "Claims Department",
+    "email": "claims@example.com",
+    "phone": "",
+    "address": ["PO Box 0000", "City, CA 00000"]
+  },
+  {
+    "id": "sane-living",
+    "name": "Sane Living",
+    "contact": "",
+    "email": "",
+    "phone": "",
+    "address": ["Ojai, CA 93023"]
+  }
+]
