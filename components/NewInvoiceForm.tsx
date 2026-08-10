@@ -175,12 +175,12 @@ export default function NewInvoiceForm({ existing }: { existing?: any } = {}) {
       )}
 
       {err && (
-        <p role="alert" className="panel border-l-8 border-l-red border-red/50 bg-red2 p-5
+        <p role="alert" className="card border-l-8 border-l-red border-red/50 bg-red2 p-5
                                    text-lg font-semibold text-red">{err}</p>
       )}
 
       {/* 1 · client */}
-      <section className="panel border-l-8 border-l-green p-7">
+      <section className="card border-l-8 border-l-green p-7">
         <Step n={1} title="Who is this for?" />
         <div className="mt-5 space-y-5">
           <div>
@@ -193,7 +193,7 @@ export default function NewInvoiceForm({ existing }: { existing?: any } = {}) {
           </div>
 
           {clientId === NEW_CLIENT && (
-            <div className="grid gap-4 rounded-lg border-2 border-green/30 bg-mint p-5 sm:grid-cols-2">
+            <div className="grid gap-4 rounded-2xl bg-tint p-5 sm:grid-cols-2">
               <div className="sm:col-span-2">
                 <label htmlFor="cn" className="label">Their name</label>
                 <input id="cn" value={newClient.name} autoFocus
@@ -230,7 +230,7 @@ export default function NewInvoiceForm({ existing }: { existing?: any } = {}) {
       </section>
 
       {/* 2 · dates */}
-      <section className="panel border-l-8 border-l-green p-7">
+      <section className="card border-l-8 border-l-green p-7">
         <Step n={2} title="When?" />
         <div className="mt-5 grid gap-5 sm:grid-cols-2">
           <div>
@@ -248,8 +248,8 @@ export default function NewInvoiceForm({ existing }: { existing?: any } = {}) {
         <div className="mt-4 flex flex-wrap gap-3">
           {[["On receipt", 0], ["In 7 days", 7], ["In 14 days", 14], ["In 30 days", 30]].map(([l, d]) => (
             <button key={l as string} type="button" onClick={() => setDue(d as number)}
-                    className="rounded-lg border-2 border-line bg-card px-4 py-2 text-base
-                               font-semibold text-body hover:border-green hover:text-green">
+                    className="rounded-2xl bg-card shadow-card px-4 py-2 text-base
+                               font-semibold text-body hover:text-brand">
               {l}
             </button>
           ))}
@@ -257,11 +257,11 @@ export default function NewInvoiceForm({ existing }: { existing?: any } = {}) {
       </section>
 
       {/* 3 · work */}
-      <section className="panel border-l-8 border-l-green p-7">
+      <section className="card border-l-8 border-l-green p-7">
         <Step n={3} title="What was the work?" hint="One line per item. Quantity can be hours or things." />
         <div className="mt-5 space-y-5">
           {items.map((it, i) => (
-            <div key={i} className="rounded-lg border-2 border-line bg-paper p-5">
+            <div key={i} className="rounded-2xl border-2 border-line bg-paper p-5">
               <div className="flex items-center justify-between">
                 <span className="label">Line {i + 1}</span>
                 {items.length > 1 && (
@@ -300,7 +300,7 @@ export default function NewInvoiceForm({ existing }: { existing?: any } = {}) {
       </section>
 
       {/* 4 · adjustments */}
-      <section className="panel border-l-8 border-l-line p-7">
+      <section className="card border-l-8 border-l-line p-7">
         <Step n={4} title="Anything to adjust?" hint="All optional — leave blank if not needed." />
         <div className="mt-5 grid gap-5 sm:grid-cols-3">
           <div>
@@ -333,7 +333,7 @@ export default function NewInvoiceForm({ existing }: { existing?: any } = {}) {
       </section>
 
       {/* total */}
-      <section className="panel border-l-8 border-l-green bg-mint p-7">
+      <section className="card border-l-8 border-l-green bg-mint p-7">
         <div className="space-y-2 text-lg">
           <div className="flex justify-between text-body">
             <span>Subtotal</span><span className="tnum">{money(subtotal(li), cur)}</span>
