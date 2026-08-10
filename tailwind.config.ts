@@ -1,49 +1,51 @@
 import type { Config } from "tailwindcss";
 
 /* ─────────────────────────────────────────────────────────────
-   PALETTE — chosen for high contrast and easy reading.
-   Every text colour here passes WCAG AA on its background,
-   and the body text passes AAA. Change a hex to restyle the app.
+   Built for easy reading. Every text colour passes WCAG AA on
+   its background; body text passes AAA. Change a hex to restyle.
    ───────────────────────────────────────────────────────────── */
 const config: Config = {
   content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}"],
   theme: {
     extend: {
       colors: {
-        ink:    "#14160F",   // headings + body — near-black (AAA on white)
-        body:   "#2C2F26",   // long text
-        soft:   "#4E5347",   // secondary — still AA at 17px
-        paper:  "#F7F6F1",   // page background
-        card:   "#FFFFFF",   // panels
-        line:   "#C9C7BB",   // borders — deliberately visible
-        green:  "#254A32",   // PRIMARY. White text on this is AAA
-        green2: "#38684A",   // hover
-        mint:   "#E4EDE6",   // pale green fill
-        gold:   "#6E5210",   // PAID — dark enough to read on white
-        gold2:  "#F5EDD8",   // paid fill
-        red:    "#8A2B1B",   // OVERDUE
-        red2:   "#F8E4E0",   // overdue fill
+        ink:    "#0F1310",   // headings — near-black
+        body:   "#282D27",   // body text (AAA on paper and card)
+        soft:   "#565C54",   // secondary (AA at 16px+)
+        paper:  "#EFF3EE",   // page background — soft green-grey
+        card:   "#FFFFFF",
+        line:   "#BFC7BD",   // borders — visible on purpose
+        green:  "#1B6B3A",   // PRIMARY. White on this is AAA
+        green2: "#125129",   // hover / pressed
+        mint:   "#D8EEDF",   // pale green fill
+        gold:   "#7A5606",   // PAID
+        gold2:  "#FBEFD2",
+        red:    "#A32213",   // OVERDUE
+        red2:   "#FCE1DD",
+        blue:   "#17527E",   // reference / info
+        blue2:  "#DCEAF6",
       },
       fontFamily: {
-        display: ["Instrument Serif", "Georgia", "Times New Roman", "serif"],
-        sans:    ["Inter", "system-ui", "-apple-system", "Segoe UI", "sans-serif"],
+        /* One family, used at different weights. Cleaner and more legible
+           than mixing a serif in — and it looks more modern. */
+        sans: ["Inter", "system-ui", "-apple-system", "Segoe UI", "sans-serif"],
+        display: ["Inter", "system-ui", "sans-serif"],
       },
       fontSize: {
-        /* Deliberately large. Body text is 18px, never smaller than 16px. */
         xs:   ["15px", { lineHeight: "1.5" }],
         sm:   ["16px", { lineHeight: "1.55" }],
         base: ["18px", { lineHeight: "1.6" }],
-        lg:   ["20px", { lineHeight: "1.5" }],
-        xl:   ["24px", { lineHeight: "1.35" }],
-        "2xl":["30px", { lineHeight: "1.25" }],
-        "3xl":["38px", { lineHeight: "1.15" }],
-        "4xl":["48px", { lineHeight: "1.1" }],
+        lg:   ["21px", { lineHeight: "1.45" }],
+        xl:   ["25px", { lineHeight: "1.3",  letterSpacing: "-0.01em" }],
+        "2xl":["31px", { lineHeight: "1.2",  letterSpacing: "-0.02em" }],
+        "3xl":["39px", { lineHeight: "1.12", letterSpacing: "-0.025em" }],
+        "4xl":["48px", { lineHeight: "1.05", letterSpacing: "-0.03em" }],
       },
       boxShadow: {
-        panel: "0 1px 3px rgba(20,22,15,.06), 0 6px 18px -10px rgba(20,22,15,.12)",
-        lift:  "0 2px 6px rgba(20,22,15,.08), 0 20px 44px -20px rgba(20,22,15,.22)",
+        panel: "0 1px 2px rgba(15,19,16,.05), 0 4px 14px -6px rgba(15,19,16,.10)",
+        lift:  "0 2px 6px rgba(15,19,16,.07), 0 18px 40px -18px rgba(15,19,16,.20)",
       },
-      borderRadius: { xl2: "12px" },
+      borderRadius: { xl2: "14px" },
     },
   },
   plugins: [],
