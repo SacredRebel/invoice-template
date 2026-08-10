@@ -8,7 +8,9 @@ const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const owed = (i: any) => balanceDue(i.items, i.taxRate, i.discount, i.depositPaid);
 
 export default async function CalendarPage() {
-  const [invoices, business] = await Promise.all([getInvoices(), getBusiness()]);
+  const [all, business] = await Promise.all([getInvoices(), getBusiness()]);
+  /* A voided invoice is not owed and does not belong on a due-date calendar. */
+  const invoices = all.filter((i: any) => i.status !== "void");
   const cur = business.currency || "USD";
 
   const today = todayISO();
