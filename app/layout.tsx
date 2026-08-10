@@ -1,10 +1,19 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Invoices",
   description: "Write, send and keep track of invoices.",
+};
+
+/* Without this the phone renders a desktop-width page and everything
+   is tiny and cut off. This is the mobile fix. */
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,       // never block pinch-zoom
+  viewportFit: "cover",
 };
 
 function Nav() {
@@ -15,17 +24,22 @@ function Nav() {
   ];
   return (
     <header className="no-print border-b-2 border-line bg-card">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-8 gap-y-3 px-6 py-4">
-        <Link href="/" className="font-display text-2xl text-ink">Invoices</Link>
-        <nav className="flex items-center gap-6 text-base font-semibold">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-3 py-4">
+          <Link href="/" className="text-2xl font-bold tracking-tight text-ink">Invoices</Link>
+          <Link href="/invoices/new" className="btn-primary ml-auto !px-5 text-base">
+            + New
+          </Link>
+        </div>
+        <nav className="-mx-1 flex gap-1 overflow-x-auto pb-2">
           {links.map((l) => (
             <Link key={l.href} href={l.href}
-                  className="rounded px-1 py-2 text-body underline-offset-4 hover:text-green hover:underline">
+                  className="whitespace-nowrap rounded-lg px-4 py-2.5 text-base font-bold
+                             text-body hover:bg-mint hover:text-green">
               {l.label}
             </Link>
           ))}
         </nav>
-        <Link href="/invoices/new" className="btn-primary ml-auto">+ New invoice</Link>
       </div>
     </header>
   );
@@ -38,11 +52,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Inter:wght@400;500;600;700&display=swap" />
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
       </head>
       <body>
         <Nav />
-        <main className="mx-auto max-w-6xl px-6 py-10">{children}</main>
+        <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">{children}</main>
       </body>
     </html>
   );
