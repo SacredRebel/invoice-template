@@ -51,6 +51,23 @@ async function ghList(p: string): Promise<string[] | null> {
   } catch { return null; }
 }
 
+/** Writes ONLY if the file does not exist. GitHub rejects a PUT without a sha
+ *  when the path is already there, which is exactly the lock we need: two
+ *  requests racing for the same number, one wins, the other is told to retry. */
+async function ghCreateOnly(p: string, json: any, message: string): Promise<"created" | "exists"> {
+  if (!canSave()) throw new Error("Not connected to GitHub yet, so nothing can be saved. See SETUP.md.");
+  const r = await fetch(`${API}/repos/${OWNER}/${REPO}/contents/${p}`, {
+    method: "PUT",
+    headers: { ...H(), "Content-Type": "application/json" },
+    body: JSON.stringify({
+      message, content: enc(JSON.stringify(json, null, 2) + "\n"), branch: BRANCH,
+    }),
+  });
+  if (r.ok) return "created";
+  if (r.status === 409 || r.status === 422) return "exists";
+  throw new Error(`Could not save (${r.status}). Check the GitHub token has write access.`);
+}
+
 async function ghWrite(p: string, json: any, message: string) {
   if (!canSave()) throw new Error("Not connected to GitHub yet, so nothing can be saved. See SETUP.md.");
   const existing = await ghRead(p);
@@ -128,10 +145,31 @@ export async function nextInvoiceNumber() {
   return `INV-${String((nums.length ? Math.max(...nums) : 0) + 1).padStart(4, "0")}`;
 }
 
+/** Updates an invoice that already exists. Never used to create one. */
 export const saveInvoice = (inv: Invoice) =>
   ghWrite(`data/invoices/${inv.id}.json`, inv, `invoice: save ${inv.id}`);
 
-export async function deleteInvoice(id: string) {
+/** Creates a NEW invoice. The number is decided here, never by the caller.
+ *  If someone else takes the number first we work out the next one and try
+ *  again, so two people saving at the same moment cannot overwrite each other. */
+export async function createInvoice(input: Omit<Invoice, "id" | "number" | "createdAt">) {
+  for (let attempt = 0; attempt < 6; attempt++) {
+    const number = await nextInvoiceNumber();
+    const invoice = { ...input, id: number, number, createdAt: new Date().toISOString() } as Invoice;
+    const outcome = await ghCreateOnly(
+      `data/invoices/${number}.json`, invoice, `invoice: create ${number}`);
+    if (outcome === "created") return invoice;
+  }
+  throw new Error("Too many invoices were being saved at once. Please try again.");
+}
+
+/** Kept only so old imports do not break. Voiding is the supported route —
+ *  an invoice number must never come round again. */
+export async function deleteInvoice(id: string): Promise<never> {
+  throw new Error("Invoices are never deleted. Void it instead so the number is kept.");
+}
+
+async function _retiredDeleteInvoice(id: string) {
   if (!canSave()) throw new Error("Not connected to GitHub yet.");
   const existing = await ghRead(`data/invoices/${id}.json`);
   if (!existing) throw new Error("That invoice no longer exists.");
