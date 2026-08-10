@@ -72,23 +72,23 @@ export default async function Dashboard() {
           across {unpaid.length} unpaid invoice{unpaid.length === 1 ? "" : "s"}
         </p>
 
-        <div className="mt-8 grid grid-cols-3 gap-4 border-t border-white/20 pt-6">
+        <div className="mt-7 space-y-3 border-t border-white/20 pt-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:space-y-0">
           {[
             { label: "Waiting",  value: money(sum(waiting), cur) },
             { label: "Overdue",  value: money(sum(overdue), cur) },
             { label: "Paid this month",
               value: money(paidNow.reduce((s, i) => s + owed({ ...i, depositPaid: 0 }), 0), cur) },
           ].map((s) => (
-            <div key={s.label}>
-              <p className="text-sm font-medium text-white/70">{s.label}</p>
-              <p className="tnum mt-1.5 text-lg font-bold sm:text-xl">{s.value}</p>
+            <div key={s.label} className="flex items-baseline justify-between gap-3 sm:block">
+              <p className="text-base font-medium text-white/70 sm:text-sm">{s.label}</p>
+              <p className="tnum text-lg font-bold sm:mt-1.5 sm:text-xl">{s.value}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* ── How many of each, at a glance ── */}
-      <div className="grid grid-cols-4 gap-2 rounded-3xl bg-card p-2.5 shadow-card">
+      <div className="grid grid-cols-2 gap-2 rounded-3xl bg-card p-2.5 shadow-card sm:grid-cols-4">
         {counts.map((c) => (
           <div key={c.label} className={`rounded-2xl py-3 text-center ${c.fill}`}>
             <p className={`tnum text-2xl font-bold ${c.tone}`}>{c.n}</p>
@@ -127,8 +127,11 @@ export default async function Dashboard() {
                         <p className="truncate text-lg font-bold text-ink">
                           {inv.clientSnapshot?.name ?? "—"}
                         </p>
+                        <p className="tnum truncate text-base text-soft sm:hidden">{inv.number}</p>
                         {inv.clientSnapshot?.email && (
-                          <p className="truncate text-base text-soft">{inv.clientSnapshot.email}</p>
+                          <p className="hidden truncate text-base text-soft sm:block">
+                            {inv.clientSnapshot.email}
+                          </p>
                         )}
                       </div>
                       <span className={`chip shrink-0 ${CHIP[state] ?? CHIP.draft}`}>
@@ -137,14 +140,14 @@ export default async function Dashboard() {
                     </div>
 
                     {/* Labelled columns — this is what stops it reading as loose text */}
-                    <div className="mt-4 grid grid-cols-3 gap-3 rounded-2xl bg-wash px-5 py-4">
+                    <div className="mt-4 grid grid-cols-2 gap-3 rounded-2xl bg-wash px-5 py-4 sm:grid-cols-3">
                       <div>
                         <p className="text-sm font-medium text-soft">Amount</p>
                         <p className="tnum mt-1 text-base font-bold text-ink">
                           {money(owed(inv), cur)}
                         </p>
                       </div>
-                      <div>
+                      <div className="hidden sm:block">
                         <p className="text-sm font-medium text-soft">Invoice</p>
                         <p className="tnum mt-1 text-base font-semibold text-ink">{inv.number}</p>
                       </div>
