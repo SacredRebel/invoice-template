@@ -1,14 +1,10 @@
 import type { Metadata } from "next";
-import { Instrument_Serif, Inter } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
 
-const display = Instrument_Serif({
-  weight: "400", subsets: ["latin"], variable: "--font-display", display: "swap",
-});
-const sans = Inter({
-  subsets: ["latin"], variable: "--font-sans", display: "swap",
-});
+/* Fonts load via <link> rather than next/font so the BUILD never depends on
+   reaching Google. If the fonts are slow the app still renders in the fallback
+   face — it degrades, it doesn't fail. */
 
 export const metadata: Metadata = {
   title: "Invoices",
@@ -30,7 +26,7 @@ function Nav() {
         </Link>
         <nav className="flex items-center gap-6 text-[14px] text-slate">
           {links.map((l) => (
-            <Link key={l.href} href={l.href} className="hover:text-sage transition">
+            <Link key={l.href} href={l.href} className="transition hover:text-sage">
               {l.label}
             </Link>
           ))}
@@ -43,7 +39,15 @@ function Nav() {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${display.variable} ${sans.variable}`}>
+    <html lang="en">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap"
+        />
+      </head>
       <body>
         <Nav />
         <main className="mx-auto max-w-6xl px-6 py-10">{children}</main>
