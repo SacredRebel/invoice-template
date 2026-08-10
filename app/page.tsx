@@ -47,7 +47,7 @@ export default async function Dashboard() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="label">{prettyDate(todayISO())}</p>
-          <h1 className="mt-2 font-display text-4xl text-ink">
+          <h1 className="mt-2 text-3xl text-ink sm:text-4xl">
             {invoices.length ? "Where things stand" : "Let’s write your first invoice"}
           </h1>
         </div>
@@ -62,7 +62,7 @@ export default async function Dashboard() {
             <div className={`h-2 ${s.bar}`} aria-hidden />
             <div className="p-6">
               <p className="label">{s.label}</p>
-              <p className={`tnum mt-3 font-display text-3xl ${s.tone}`}>{s.value}</p>
+              <p className={`tnum mt-3 text-3xl ${s.tone}`}>{s.value}</p>
               <p className="mt-2 text-base text-soft">{s.note}</p>
             </div>
           </div>
@@ -70,11 +70,11 @@ export default async function Dashboard() {
       </div>
 
       <section>
-        <h2 className="mb-4 font-display text-2xl text-ink">All invoices</h2>
+        <h2 className="mb-4 text-2xl text-ink">All invoices</h2>
 
         {invoices.length === 0 ? (
           <div className="panel p-10 text-center">
-            <p className="font-display text-2xl text-ink">Nothing here yet</p>
+            <p className="text-2xl text-ink">Nothing here yet</p>
             <p className="mx-auto mt-2 max-w-md text-base text-body">
               Write one on this site, or just tell Claude about the job and it will
               appear here.
@@ -140,7 +140,7 @@ export default async function Dashboard() {
                       <span className={`tnum text-base ${late ? "font-semibold text-red" : "text-soft"}`}>
                         Due {prettyDate(inv.dueDate)}
                       </span>
-                      <span className="tnum font-display text-2xl text-ink">{money(owed(inv), cur)}</span>
+                      <span className="tnum text-2xl text-ink">{money(owed(inv), cur)}</span>
                     </div>
                   </Link>
                 );
