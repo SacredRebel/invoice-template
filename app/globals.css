@@ -3,22 +3,28 @@
 @tailwind utilities;
 
 @layer base {
-  html { -webkit-font-smoothing: antialiased; }
-  body { @apply bg-paper text-body font-sans text-base; }
+  html {
+    -webkit-font-smoothing: antialiased;
+    -webkit-text-size-adjust: 100%;   /* stop iOS inflating text */
+  }
+  body {
+    @apply bg-paper text-body font-sans text-base;
+    overflow-x: hidden;               /* nothing ever scrolls sideways */
+  }
+  h1, h2, h3 { @apply font-semibold text-ink; }
 
-  h1, h2, h3 { @apply text-ink; }
-
-  /* Money and dates line up in columns */
   .tnum { font-variant-numeric: tabular-nums lining-nums; }
 
-  ::selection { background: #254A32; color: #fff; }
+  ::selection { background: #1B6B3A; color: #fff; }
 
-  /* Focus must be obvious, not subtle */
   *:focus-visible {
-    outline: 3px solid #254A32;
+    outline: 3px solid #1B6B3A;
     outline-offset: 2px;
-    border-radius: 4px;
+    border-radius: 6px;
   }
+
+  /* iOS zooms any input under 16px. Ours are 18px, but be explicit. */
+  input, select, textarea, button { font-size: 18px; font-family: inherit; }
 
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; }
@@ -26,38 +32,35 @@
 }
 
 @layer components {
-  .label { @apply text-sm font-semibold uppercase tracking-wide text-soft; }
+  .label { @apply text-sm font-bold uppercase tracking-wide text-soft; }
 
-  /* Big targets. Minimum 52px tall — easy to hit, easy to read. */
   .field {
-    @apply w-full rounded-lg border-2 border-line bg-card px-4 py-3 text-base text-ink
+    @apply w-full rounded-xl border-2 border-line bg-card px-4 py-3 text-base text-ink
            placeholder:text-soft/60 focus:border-green focus:outline-none transition;
-    min-height: 52px;
+    min-height: 54px;
   }
+  .field:disabled { @apply bg-paper text-soft; }
 
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-6 text-base
-           font-semibold transition disabled:opacity-45 disabled:pointer-events-none;
-    min-height: 52px;
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-6 text-base
+           font-bold transition disabled:opacity-45 disabled:pointer-events-none;
+    min-height: 54px;
   }
-  .btn-primary { @apply btn bg-green text-white hover:bg-green2; }
+  .btn-primary { @apply btn bg-green text-white hover:bg-green2 active:bg-green2; }
   .btn-quiet   { @apply btn border-2 border-line bg-card text-ink hover:border-green hover:text-green; }
+  .btn-danger  { @apply btn border-2 border-red/40 bg-card text-red hover:bg-red2; }
 
   .panel { @apply rounded-xl2 border-2 border-line bg-card shadow-panel; }
 }
 
-/* ── Print: the page becomes the invoice and nothing else ── */
 @media print {
-  @page { margin: 16mm; size: letter; }
+  @page { margin: 14mm; size: letter; }
   .no-print { display: none !important; }
-  body { background: #fff !important; font-size: 12pt; }
+  body { background: #fff !important; font-size: 11.5pt; }
   .print-sheet {
-    box-shadow: none !important;
-    border: none !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    max-width: none !important;
-    border-radius: 0 !important;
+    box-shadow: none !important; border: none !important;
+    margin: 0 !important; padding: 0 !important;
+    max-width: none !important; border-radius: 0 !important;
   }
   a { text-decoration: none !important; color: #000 !important; }
 }
