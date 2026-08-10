@@ -4,7 +4,7 @@ export type LineItem = {
   rate: number;
 };
 
-export type InvoiceStatus = "draft" | "sent" | "paid" | "overdue";
+export type InvoiceStatus = "draft" | "sent" | "paid" | "void" | "overdue";
 
 export type Client = {
   id: string;
@@ -30,6 +30,7 @@ export type Invoice = {
   reference?: string;         // claim / policy / PO number
   terms?: string;             // overrides the business default
   notes?: string;
+  paidAt?: string;            // set when marked paid, cleared when not
   createdAt: string;
 };
 
