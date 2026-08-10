@@ -2,11 +2,22 @@ import Link from "next/link";
 import { getInvoices, getBusiness, canSave } from "@/lib/data";
 import { money, prettyDate, isOverdue, todayISO } from "@/lib/format";
 import { balanceDue } from "@/lib/types";
-import StatusPill from "@/components/StatusPill";
 
 export const dynamic = "force-dynamic";
 
 const owed = (i: any) => balanceDue(i.items, i.taxRate, i.discount, i.depositPaid);
+
+const CHIP: Record<string, string> = {
+  draft:   "bg-wash text-body",
+  sent:    "bg-tint text-brand",
+  paid:    "bg-mint text-green",
+  overdue: "bg-red2 text-red",
+};
+const WORD: Record<string, string> = {
+  draft: "Draft", sent: "Waiting", paid: "Paid", overdue: "Overdue",
+};
+const initials = (n = "") =>
+  n.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join("").toUpperCase() || "?";
 
 export default async function Dashboard() {
   const [invoices, business] = await Promise.all([getInvoices(), getBusiness()]);
@@ -15,138 +26,137 @@ export default async function Dashboard() {
   const sum = (l: any[]) => l.reduce((s, i) => s + owed(i), 0);
   const unpaid  = invoices.filter((i) => i.status !== "paid" && i.status !== "draft");
   const overdue = unpaid.filter((i) => isOverdue(i.dueDate, i.status));
+  const waiting = unpaid.filter((i) => !isOverdue(i.dueDate, i.status));
   const paidNow = invoices.filter(
     (i) => i.status === "paid" && i.issueDate.slice(0, 7) === todayISO().slice(0, 7));
+  const drafts  = invoices.filter((i) => i.status === "draft");
 
-  /* One colour per meaning, used identically everywhere in the app. */
-  const stats = [
-    { label: "Waiting for payment", value: money(sum(unpaid), cur),
-      note: `${unpaid.length} invoice${unpaid.length === 1 ? "" : "s"}`,
-      bar: "bg-green", tone: "text-ink" },
-    { label: "Overdue", value: money(sum(overdue), cur),
-      note: overdue.length ? `${overdue.length} past the due date` : "Nothing overdue",
-      bar: overdue.length ? "bg-red" : "bg-line",
-      tone: overdue.length ? "text-red" : "text-soft",
-      fill: overdue.length ? "bg-red2" : "" },
-    { label: "Paid this month",
-      value: money(paidNow.reduce((s, i) => s + owed({ ...i, depositPaid: 0 }), 0), cur),
-      note: `${paidNow.length} received`, bar: "bg-gold", tone: "text-ink" },
+  const counts = [
+    { n: waiting.length, label: "Waiting" },
+    { n: overdue.length, label: "Overdue" },
+    { n: paidNow.length, label: "Paid" },
+    { n: drafts.length,  label: "Draft"   },
   ];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-7">
       {!canSave() && (
-        <div className="panel border-l-8 border-l-gold border-gold/50 bg-gold2 p-5">
-          <p className="text-lg font-semibold text-ink">Set-up not finished yet</p>
+        <div className="rounded-3xl bg-gold2 px-6 py-5">
+          <p className="text-lg font-bold text-ink">Set-up not finished yet</p>
           <p className="mt-1 text-base text-body">
-            Look around freely — but new invoices won&rsquo;t be saved until GitHub is connected.
+            Look around freely — new invoices won&rsquo;t be saved until GitHub is connected.
           </p>
         </div>
       )}
 
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="label">{prettyDate(todayISO())}</p>
-          <h1 className="mt-2 text-3xl text-ink sm:text-4xl">
-            {invoices.length ? "Where things stand" : "Let’s write your first invoice"}
-          </h1>
-        </div>
-        <p className="rounded-lg border-2 border-line bg-card px-4 py-2 text-base text-soft">
-          Tip: ask Claude to write an invoice and it appears here.
-        </p>
+      <div>
+        <p className="label">{prettyDate(todayISO())}</p>
+        <h1 className="mt-2 text-3xl font-bold tracking-tight text-ink sm:text-4xl">
+          {invoices.length ? "Where things stand" : "Let’s write your first invoice"}
+        </h1>
       </div>
 
-      <div className="grid gap-5 sm:grid-cols-3">
-        {stats.map((s) => (
-          <div key={s.label} className={`panel overflow-hidden ${s.fill ?? ""}`}>
-            <div className={`h-2 ${s.bar}`} aria-hidden />
-            <div className="p-6">
-              <p className="label">{s.label}</p>
-              <p className={`tnum mt-3 text-3xl ${s.tone}`}>{s.value}</p>
-              <p className="mt-2 text-base text-soft">{s.note}</p>
+      {/* ── Hero. The one number she actually wants, on a deep surface. ── */}
+      <section className="overflow-hidden rounded-3xl bg-gradient-to-br from-forest to-forest2
+                          px-7 py-8 text-white shadow-lift sm:px-9 sm:py-10">
+        <p className="text-sm font-semibold uppercase tracking-[0.16em] text-white/75">
+          Owed to you right now
+        </p>
+        <p className="tnum mt-3 font-display text-4xl font-bold leading-none">
+          {money(sum(unpaid), cur)}
+        </p>
+        <p className="mt-2.5 text-base text-white/80">
+          across {unpaid.length} unpaid invoice{unpaid.length === 1 ? "" : "s"}
+        </p>
+
+        <div className="mt-8 grid grid-cols-3 gap-4 border-t border-white/20 pt-6">
+          {[
+            { label: "Waiting",  value: money(sum(waiting), cur) },
+            { label: "Overdue",  value: money(sum(overdue), cur) },
+            { label: "Paid this month",
+              value: money(paidNow.reduce((s, i) => s + owed({ ...i, depositPaid: 0 }), 0), cur) },
+          ].map((s) => (
+            <div key={s.label}>
+              <p className="text-sm font-medium text-white/70">{s.label}</p>
+              <p className="tnum mt-1.5 text-lg font-bold sm:text-xl">{s.value}</p>
             </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── How many of each, at a glance ── */}
+      <div className="grid grid-cols-4 gap-2 rounded-3xl bg-card p-2.5 shadow-card">
+        {counts.map((c) => (
+          <div key={c.label} className="rounded-2xl py-3 text-center">
+            <p className="tnum text-2xl font-bold text-ink">{c.n}</p>
+            <p className="mt-0.5 text-sm font-medium text-soft">{c.label}</p>
           </div>
         ))}
       </div>
 
       <section>
-        <h2 className="mb-4 text-2xl text-ink">All invoices</h2>
+        <h2 className="mb-4 text-2xl font-bold tracking-tight text-ink">All invoices</h2>
 
         {invoices.length === 0 ? (
-          <div className="panel p-10 text-center">
-            <p className="text-2xl text-ink">Nothing here yet</p>
+          <div className="card px-8 py-14 text-center">
+            <p className="text-2xl font-bold text-ink">Nothing here yet</p>
             <p className="mx-auto mt-2 max-w-md text-base text-body">
-              Write one on this site, or just tell Claude about the job and it will
-              appear here.
+              Write one here, or tell Claude about the job and it will appear.
             </p>
-            <Link href="/invoices/new" className="btn-primary mt-6">+ New invoice</Link>
+            <Link href="/invoices/new" className="btn-primary mt-7">+ New invoice</Link>
           </div>
         ) : (
-          <>
-            <div className="panel hidden overflow-hidden md:block">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b-2 border-line bg-paper text-left">
-                    {["Invoice", "Client", "Due", "Status", "Amount"].map((h, i) => (
-                      <th key={h} className={`label px-6 py-4 ${i === 4 ? "text-right" : ""}`}>{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {invoices.map((inv) => {
-                    const late = isOverdue(inv.dueDate, inv.status);
-                    const bar = inv.status === "paid" ? "border-l-gold"
-                              : late ? "border-l-red"
-                              : inv.status === "draft" ? "border-l-line" : "border-l-green";
-                    return (
-                      <tr key={inv.id}
-                          className={`border-b-2 border-l-8 border-line ${bar} last:border-b-0 hover:bg-mint/50`}>
-                        <td className="px-6 py-5">
-                          <Link href={`/invoices/${inv.id}`}
-                                className="tnum text-lg font-semibold text-green underline underline-offset-4">
-                            {inv.number}
-                          </Link>
-                        </td>
-                        <td className="px-6 py-5 text-base text-body">{inv.clientSnapshot?.name ?? "—"}</td>
-                        <td className={`tnum px-6 py-5 text-base ${late ? "font-semibold text-red" : "text-body"}`}>
-                          {prettyDate(inv.dueDate)}
-                        </td>
-                        <td className="px-6 py-5"><StatusPill status={inv.status} dueDate={inv.dueDate} /></td>
-                        <td className="tnum px-6 py-5 text-right text-lg font-semibold text-ink">
-                          {money(owed(inv), cur)}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-
-            <div className="space-y-4 md:hidden">
-              {invoices.map((inv) => {
-                const late = isOverdue(inv.dueDate, inv.status);
-                const bar = inv.status === "paid" ? "border-l-gold"
-                          : late ? "border-l-red"
-                          : inv.status === "draft" ? "border-l-line" : "border-l-green";
-                return (
-                  <Link key={inv.id} href={`/invoices/${inv.id}`}
-                        className={`panel block border-l-8 ${bar} p-5`}>
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="tnum text-lg font-semibold text-green">{inv.number}</span>
-                      <StatusPill status={inv.status} dueDate={inv.dueDate} />
-                    </div>
-                    <p className="mt-2 text-base text-body">{inv.clientSnapshot?.name}</p>
-                    <div className="mt-3 flex items-baseline justify-between">
-                      <span className={`tnum text-base ${late ? "font-semibold text-red" : "text-soft"}`}>
-                        Due {prettyDate(inv.dueDate)}
+          <ul className="space-y-4">
+            {invoices.map((inv) => {
+              const late  = isOverdue(inv.dueDate, inv.status);
+              const state = late ? "overdue" : inv.status;
+              return (
+                <li key={inv.id}>
+                  <Link href={`/invoices/${inv.id}`}
+                        className="block rounded-3xl bg-card p-5 shadow-card transition
+                                   hover:shadow-lift sm:p-6">
+                    <div className="flex items-center gap-4">
+                      <span className="flex h-12 w-12 shrink-0 items-center justify-center
+                                       rounded-2xl bg-tint text-base font-bold text-brand">
+                        {initials(inv.clientSnapshot?.name)}
                       </span>
-                      <span className="tnum text-2xl text-ink">{money(owed(inv), cur)}</span>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-lg font-bold text-ink">
+                          {inv.clientSnapshot?.name ?? "—"}
+                        </p>
+                        {inv.clientSnapshot?.email && (
+                          <p className="truncate text-base text-soft">{inv.clientSnapshot.email}</p>
+                        )}
+                      </div>
+                      <span className={`chip shrink-0 ${CHIP[state] ?? CHIP.draft}`}>
+                        {WORD[state] ?? "Draft"}
+                      </span>
+                    </div>
+
+                    {/* Labelled columns — this is what stops it reading as loose text */}
+                    <div className="mt-4 grid grid-cols-3 gap-3 rounded-2xl bg-wash px-5 py-4">
+                      <div>
+                        <p className="text-sm font-medium text-soft">Amount</p>
+                        <p className="tnum mt-1 text-base font-bold text-ink">
+                          {money(owed(inv), cur)}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-soft">Invoice</p>
+                        <p className="tnum mt-1 text-base font-semibold text-ink">{inv.number}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-soft">Due</p>
+                        <p className={`tnum mt-1 text-base font-semibold ${late ? "text-red" : "text-ink"}`}>
+                          {prettyDate(inv.dueDate)}
+                        </p>
+                      </div>
                     </div>
                   </Link>
-                );
-              })}
-            </div>
-          </>
+                </li>
+              );
+            })}
+          </ul>
         )}
       </section>
     </div>
