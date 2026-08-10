@@ -12,7 +12,7 @@ const WORD: Record<string, string> = {
   draft: "Draft", sent: "Waiting for payment", paid: "Paid", overdue: "Overdue",
 };
 const CHIP: Record<string, string> = {
-  draft: "bg-wash text-body", sent: "bg-tint text-brand",
+  draft: "bg-gold2 text-gold", sent: "bg-tint text-brand",
   paid: "bg-mint text-green", overdue: "bg-red2 text-red",
 };
 const initials = (n = "") =>
@@ -50,6 +50,10 @@ export default async function InvoicePage({ params }: { params: { id: string } }
           {/* ── Masthead ── */}
           <header className="flex flex-wrap items-start justify-between gap-x-8 gap-y-5">
             <div>
+              {business.logoUrl ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img src={business.logoUrl} alt={business.name} className="mb-3 max-h-14 w-auto" />
+              ) : null}
               <p className="font-display text-xl font-bold tracking-tight text-ink">
                 {business.name}
               </p>
@@ -105,7 +109,7 @@ export default async function InvoicePage({ params }: { params: { id: string } }
               {inv.reference && (
                 <div className="col-span-2 sm:col-span-1">
                   <p className="text-sm font-medium text-soft">Reference</p>
-                  <p className="tnum mt-1 text-base font-semibold text-brand">{inv.reference}</p>
+                  <p className="tnum mt-1 text-base font-semibold text-blue">{inv.reference}</p>
                 </div>
               )}
             </div>
@@ -167,8 +171,8 @@ export default async function InvoicePage({ params }: { params: { id: string } }
               </div>
               {dep > 0 && (
                 <div className="flex justify-between text-base">
-                  <dt className="text-soft">Already paid</dt>
-                  <dd className="tnum font-semibold text-ink">− {money(dep, cur)}</dd>
+                  <dt className="text-plum">Already paid</dt>
+                  <dd className="tnum font-semibold text-plum">− {money(dep, cur)}</dd>
                 </div>
               )}
             </dl>
