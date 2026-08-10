@@ -102,7 +102,7 @@ export default function NewInvoiceForm() {
       <span className="tnum grid h-11 w-11 shrink-0 place-items-center rounded-full
                        bg-green text-lg font-bold text-white">{n}</span>
       <div>
-        <h2 className="font-display text-2xl text-ink">{title}</h2>
+        <h2 className="text-2xl text-ink">{title}</h2>
         {hint && <p className="mt-0.5 text-base text-soft">{hint}</p>}
       </div>
     </div>
@@ -113,7 +113,7 @@ export default function NewInvoiceForm() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="label">New invoice</p>
-          <h1 className="tnum mt-2 font-display text-4xl text-ink">{meta.nextNumber}</h1>
+          <h1 className="tnum mt-2 text-3xl text-ink sm:text-4xl">{meta.nextNumber}</h1>
         </div>
         <p className="rounded-lg border-2 border-line bg-card px-4 py-2 text-base text-soft">
           Prefer to talk? Ask Claude and it writes this for you.
@@ -306,7 +306,7 @@ export default function NewInvoiceForm() {
             <span className="font-semibold uppercase tracking-wide text-ink">
               {num(deposit) > 0 ? "Total" : "Total due"}
             </span>
-            <span className="tnum font-display text-4xl text-ink">
+            <span className="tnum text-4xl text-ink">
               {money(total(li, num(taxRate), num(discount)), cur)}
             </span>
           </div>
@@ -317,7 +317,7 @@ export default function NewInvoiceForm() {
               </div>
               <div className="flex items-baseline justify-between border-t-2 border-ink pt-2">
                 <span className="font-semibold uppercase tracking-wide text-ink">Balance due</span>
-                <span className="tnum font-display text-4xl text-green">
+                <span className="tnum text-4xl text-green">
                   {money(balanceDue(li, num(taxRate), num(discount), num(deposit)), cur)}
                 </span>
               </div>
