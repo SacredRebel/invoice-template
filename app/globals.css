@@ -4,49 +4,60 @@
 
 @layer base {
   html { -webkit-font-smoothing: antialiased; }
-  body { @apply bg-paper text-ink font-sans; }
+  body { @apply bg-paper text-body font-sans text-base; }
 
-  /* Money and dates must line up in columns. */
+  h1, h2, h3 { @apply text-ink; }
+
+  /* Money and dates line up in columns */
   .tnum { font-variant-numeric: tabular-nums lining-nums; }
 
-  ::selection { background: #3F5347; color: #FBFAF7; }
+  ::selection { background: #254A32; color: #fff; }
 
+  /* Focus must be obvious, not subtle */
   *:focus-visible {
-    outline: 2px solid #3F5347;
+    outline: 3px solid #254A32;
     outline-offset: 2px;
-    border-radius: 3px;
+    border-radius: 4px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
   }
 }
 
 @layer components {
-  .label {
-    @apply text-[10px] uppercase tracking-[0.16em] text-mute font-medium;
-  }
+  .label { @apply text-sm font-semibold uppercase tracking-wide text-soft; }
+
+  /* Big targets. Minimum 52px tall — easy to hit, easy to read. */
   .field {
-    @apply w-full rounded-lg border border-line bg-card px-3 py-2.5 text-[15px]
-           placeholder:text-mute/70 focus:border-sage focus:outline-none
-           focus:ring-2 focus:ring-sage/15 transition;
+    @apply w-full rounded-lg border-2 border-line bg-card px-4 py-3 text-base text-ink
+           placeholder:text-soft/60 focus:border-green focus:outline-none transition;
+    min-height: 52px;
   }
+
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5
-           text-[14px] font-medium transition active:scale-[.985]
-           disabled:opacity-40 disabled:pointer-events-none;
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-6 text-base
+           font-semibold transition disabled:opacity-45 disabled:pointer-events-none;
+    min-height: 52px;
   }
-  .btn-primary { @apply btn bg-sage text-paper hover:bg-ink; }
-  .btn-quiet   { @apply btn border border-line bg-card text-ink hover:border-sage hover:text-sage; }
-  .panel       { @apply rounded-xl2 border border-line bg-card shadow-panel; }
+  .btn-primary { @apply btn bg-green text-white hover:bg-green2; }
+  .btn-quiet   { @apply btn border-2 border-line bg-card text-ink hover:border-green hover:text-green; }
+
+  .panel { @apply rounded-xl2 border-2 border-line bg-card shadow-panel; }
 }
 
-/* ── Printing: the page becomes the invoice, nothing else. ── */
+/* ── Print: the page becomes the invoice and nothing else ── */
 @media print {
-  @page { margin: 14mm; size: letter; }
+  @page { margin: 16mm; size: letter; }
   .no-print { display: none !important; }
-  body { background: #fff !important; }
+  body { background: #fff !important; font-size: 12pt; }
   .print-sheet {
     box-shadow: none !important;
     border: none !important;
     margin: 0 !important;
     padding: 0 !important;
     max-width: none !important;
+    border-radius: 0 !important;
   }
+  a { text-decoration: none !important; color: #000 !important; }
 }
