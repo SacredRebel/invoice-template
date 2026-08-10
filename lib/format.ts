@@ -25,4 +25,4 @@ export const addDays = (iso: string, days: number) => {
 };
 
 export const isOverdue = (dueDate: string, status: string) =>
-  status !== "paid" && status !== "draft" && dueDate < todayISO();
+  status !== "paid" && status !== "draft" && status !== "void" && dueDate < todayISO();
