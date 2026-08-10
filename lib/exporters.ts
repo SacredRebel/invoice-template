@@ -99,6 +99,7 @@ body{font-family:${FONT};color:${BODY};font-size:12pt;line-height:1.55}</style>
 
 <table width="100%" style="border-collapse:collapse;margin-top:22px"><tr>
 <td style="vertical-align:top">
+  ${biz.logoUrl ? `<div style="margin-bottom:8px"><img src="${biz.logoUrl}" alt="${biz.name}" style="max-height:52px"></div>` : ""}
   <div style="font-size:22pt;font-weight:bold;color:${INK}">${biz.name}</div>
   <div style="font-size:12pt;color:${BODY};margin-top:6px">
     ${(biz.address ?? []).join("<br>")}${biz.phone ? "<br>" + biz.phone : ""}${biz.email ? "<br>" + biz.email : ""}${biz.license ? "<br>Lic. " + biz.license : ""}
