@@ -17,11 +17,11 @@ const config: Config = {
         paper:  "#EFF1F5",   // page background — soft, not stark white
         card:   "#FFFFFF",
         line:   "#CBD5E1",   // borders — visible but not heavy
-        brand:  "#4F46E5",   // PRIMARY — indigo. White on it passes AA / AAA-large
-        brand2: "#4338CA",   // hover / pressed
-        tint:   "#E0E7FF",   // pale brand fill
-        forest: "#1E1B4B",   // deep hero surface — white on it is 15:1
-        forest2:"#3730A3",   // lighter end of the hero gradient
+        brand:  "#2563EB",   // PRIMARY — the blue from the reference app
+        brand2: "#1D4ED8",   // hover / pressed
+        tint:   "#DBEAFE",   // pale brand fill
+        forest: "#1D4ED8",   // hero surface — white on it passes AA
+        forest2:"#3B82F6",   // lighter end of the hero gradient
         green:  "#067647",   // PAID only. Nothing else is green.
         green2: "#055C38",
         mint:   "#D1FAE5",   // pale green fill — paid
@@ -54,7 +54,7 @@ const config: Config = {
       boxShadow: {
         card:  "0 1px 2px rgba(11,18,32,.04), 0 8px 24px -12px rgba(11,18,32,.10)",
         lift:  "0 2px 8px rgba(11,18,32,.05), 0 32px 64px -32px rgba(11,18,32,.28)",
-        brand: "0 8px 20px -8px rgba(79,70,229,.45)",
+        brand: "0 8px 20px -8px rgba(37,99,235,.45)",
         green: "0 8px 20px -8px rgba(6,118,71,.40)",
         panel: "0 1px 2px rgba(11,18,32,.04), 0 8px 24px -12px rgba(11,18,32,.10)",
       },
