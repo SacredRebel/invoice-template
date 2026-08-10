@@ -3,6 +3,20 @@ import { subtotal, taxAmount, total, balanceDue, type Invoice, type Business } f
 
 const pad = (s: string, n: number) => String(s).padEnd(n).slice(0, n);
 
+/** Everything that came from a person gets escaped before it goes into HTML.
+ *  A client called <script> or a note with an <img onerror=...> would otherwise
+ *  run inside whatever email client or Word document opens this. */
+const esc = (v: unknown) =>
+  String(v ?? "")
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+
+/** For a URL we also refuse anything that is not plain http(s). */
+const escUrl = (v: unknown) => {
+  const u = String(v ?? "").trim();
+  return /^https?:\/\//i.test(u) ? esc(u) : "";
+};
+
 /** Plain text — for a text message, notes, or a very plain email. */
 export function toPlainText(inv: Invoice, biz: Business) {
   const cur = biz.currency || "USD";
@@ -14,10 +28,10 @@ export function toPlainText(inv: Invoice, biz: Business) {
   biz.address?.forEach((a) => L.push(a));
   if (biz.phone) L.push(biz.phone);
   if (biz.email) L.push(biz.email);
-  L.push("", `INVOICE ${inv.number}`,
+  L.push("", `INVOICE ${esc(inv.number)}`,
     `Issued: ${prettyDate(inv.issueDate)}`,
     `Due:    ${prettyDate(inv.dueDate)}`);
-  if (inv.reference) L.push(`Ref:    ${inv.reference}`);
+  if (inv.reference) L.push(`Ref:    ${esc(inv.reference)}`);
   L.push("", "BILL TO", c?.name ?? "");
   if (c?.contact) L.push(c.contact);
   c?.address?.forEach((a) => L.push(a));
@@ -38,7 +52,7 @@ export function toPlainText(inv: Invoice, biz: Business) {
     right("BALANCE DUE", money(balanceDue(inv.items, inv.taxRate, disc, dep), cur));
   }
   L.push("");
-  if (inv.notes) L.push(`Notes: ${inv.notes}`, "");
+  if (inv.notes) L.push(`Notes: ${esc(inv.notes)}`, "");
   L.push(inv.terms || biz.paymentTerms || "");
   if (biz.paymentMethods?.length) L.push(`Accepted: ${biz.paymentMethods.join(", ")}`);
   return L.join("\n");
@@ -88,7 +102,7 @@ export function toHTML(inv: Invoice, biz: Business) {
 
   return `<!DOCTYPE html>
 <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word">
-<head><meta charset="utf-8"><title>Invoice ${inv.number}</title>
+<head><meta charset="utf-8"><title>Invoice ${esc(inv.number)}</title>
 <style>@page{size:letter;margin:16mm}
 body{font-family:${FONT};color:${BODY};font-size:12pt;line-height:1.55}</style>
 </head><body>
@@ -99,26 +113,26 @@ body{font-family:${FONT};color:${BODY};font-size:12pt;line-height:1.55}</style>
 
 <table width="100%" style="border-collapse:collapse;margin-top:22px"><tr>
 <td style="vertical-align:top">
-  ${biz.logoUrl ? `<div style="margin-bottom:8px"><img src="${biz.logoUrl}" alt="${biz.name}" style="max-height:52px"></div>` : ""}
-  <div style="font-size:22pt;font-weight:bold;color:${INK}">${biz.name}</div>
+  ${biz.logoUrl ? `<div style="margin-bottom:8px"><img src="${escUrl(biz.logoUrl)}" alt="${esc(biz.name)}" style="max-height:52px"></div>` : ""}
+  <div style="font-size:22pt;font-weight:bold;color:${INK}">${esc(biz.name)}</div>
   <div style="font-size:12pt;color:${BODY};margin-top:6px">
-    ${(biz.address ?? []).join("<br>")}${biz.phone ? "<br>" + biz.phone : ""}${biz.email ? "<br>" + biz.email : ""}${biz.license ? "<br>Lic. " + biz.license : ""}
+    ${(biz.address ?? []).map(esc).join("<br>")}${biz.phone ? "<br>" + esc(biz.phone) : ""}${biz.email ? "<br>" + esc(biz.email) : ""}${biz.license ? "<br>Lic. " + esc(biz.license) : ""}
   </div>
 </td>
 <td style="vertical-align:top;text-align:right">
   <div style="font-size:26pt;font-weight:bold;letter-spacing:-1px;color:${INK}">INVOICE</div>
-  <div style="font-size:15pt;font-weight:bold;color:${BRAND};margin-top:2px">${inv.number}</div>
+  <div style="font-size:15pt;font-weight:bold;color:${BRAND};margin-top:2px">${esc(inv.number)}</div>
   <div style="margin-top:10px"><table style="border-collapse:collapse;float:right"><tr>
     <td bgcolor="${st.bg}" style="background:${st.bg};border:2px solid ${st.fg};padding:7px 14px;
-        font-size:12pt;font-weight:bold;color:${st.fg}">${st.word}</td>
+        font-size:12pt;font-weight:bold;color:${st.fg}">${esc(st.word)}</td>
   </tr></table></div>
 </td></tr></table>
 
 <table width="100%" style="border-collapse:collapse;margin-top:26px"><tr>
 <td width="50%" bgcolor="${PAPER}" style="background:${PAPER};border:2px solid ${LINE};padding:14px;vertical-align:top">
   <div style="font-size:11pt;font-weight:bold;letter-spacing:.6px;color:${BODY}">BILLED TO</div>
-  <div style="font-size:14pt;font-weight:bold;margin-top:5px;color:${INK}">${c?.name ?? ""}</div>
-  <div style="font-size:12pt;color:${BODY}">${c?.contact ? c.contact + "<br>" : ""}${(c?.address ?? []).join("<br>")}${c?.email ? "<br>" + c.email : ""}</div>
+  <div style="font-size:14pt;font-weight:bold;margin-top:5px;color:${INK}">${esc(c?.name ?? "")}</div>
+  <div style="font-size:12pt;color:${BODY}">${c?.contact ? esc(c.contact) + "<br>" : ""}${(c?.address ?? []).map(esc).join("<br>")}${c?.email ? "<br>" + esc(c.email) : ""}</div>
 </td>
 <td width="10">&nbsp;</td>
 <td width="50%" style="border:2px solid ${LINE};padding:14px;vertical-align:top">
@@ -128,7 +142,7 @@ body{font-family:${FONT};color:${BODY};font-size:12pt;line-height:1.55}</style>
     <tr><td style="padding:3px 0;font-weight:bold;color:${BODY}">Payment due</td>
         <td style="padding:3px 0;text-align:right;font-weight:bold;color:${INK}">${prettyDate(inv.dueDate)}</td></tr>
     ${inv.reference ? `<tr><td style="padding:3px 0;font-weight:bold;color:${BODY}">Reference</td>
-        <td style="padding:3px 0;text-align:right;color:${BLUE}">${inv.reference}</td></tr>` : ""}
+        <td style="padding:3px 0;text-align:right;color:${BLUE}">${esc(inv.reference)}</td></tr>` : ""}
   </table>
 </td></tr></table>
 
@@ -139,7 +153,7 @@ body{font-family:${FONT};color:${BODY};font-size:12pt;line-height:1.55}</style>
   <th align="right" bgcolor="${INK}" style="${head}background:${INK};text-align:right">RATE</th>
   <th align="right" bgcolor="${INK}" style="${head}background:${INK};text-align:right">AMOUNT</th>
 </tr>
-${inv.items.map((i) => `<tr><td style="${cell}">${i.description}</td>
+${inv.items.map((i) => `<tr><td style="${cell}">${esc(i.description)}</td>
 <td style="${cell}text-align:right">${i.quantity}</td>
 <td style="${cell}text-align:right">${money(i.rate, cur)}</td>
 <td style="${cell}text-align:right;font-weight:bold">${money(i.quantity * i.rate, cur)}</td></tr>`).join("")}
@@ -154,17 +168,17 @@ ${row("Total", money(grand, cur), true)}
 ${dep ? row("Already paid", "− " + money(dep, cur)) : ""}
 </table>
 <table width="100%" bgcolor="${bandBg}" style="border-collapse:collapse;background:${bandBg};margin-top:10px">
-<tr><td bgcolor="${bandBg}" style="background:${bandBg};padding:14px;font-size:12pt;font-weight:bold;color:#FFFFFF;letter-spacing:.6px">${bandLabel}</td>
+<tr><td bgcolor="${bandBg}" style="background:${bandBg};padding:14px;font-size:12pt;font-weight:bold;color:#FFFFFF;letter-spacing:.6px">${esc(bandLabel)}</td>
 <td bgcolor="${bandBg}" style="background:${bandBg};padding:14px;text-align:right;font-size:19pt;font-weight:bold;color:#FFFFFF">${money(due, cur)}</td></tr>
 </table>
 </td></tr></table>
 
-${inv.notes ? `<div style="margin-top:26px;border-top:2px solid ${LINE};padding-top:14px;font-size:12pt;color:${BODY}"><b style="color:${INK}">Notes</b><br>${inv.notes}</div>` : ""}
+${inv.notes ? `<div style="margin-top:26px;border-top:2px solid ${LINE};padding-top:14px;font-size:12pt;color:${BODY}"><b style="color:${INK}">Notes</b><br>${esc(inv.notes)}</div>` : ""}
 <table width="100%" style="border-collapse:collapse;margin-top:22px;border-top:2px solid ${LINE}"><tr>
 <td style="padding-top:14px;font-size:12pt;color:${BODY};vertical-align:bottom">
-  <b style="color:${INK}">Payment</b><br>${inv.terms || biz.paymentTerms || ""}${biz.paymentMethods?.length ? "<br>Accepted: " + biz.paymentMethods.join(" · ") : ""}
+  <b style="color:${INK}">Payment</b><br>${esc(inv.terms || biz.paymentTerms || "")}${biz.paymentMethods?.length ? "<br>Accepted: " + biz.paymentMethods.map(esc).join(" · ") : ""}
 </td>
-${biz.footerNote ? `<td style="padding-top:14px;text-align:right;vertical-align:bottom;font-size:17pt;font-weight:bold;color:${BRAND}">${biz.footerNote}</td>` : ""}
+${biz.footerNote ? `<td style="padding-top:14px;text-align:right;vertical-align:bottom;font-size:17pt;font-weight:bold;color:${BRAND}">${esc(biz.footerNote)}</td>` : ""}
 </tr></table>
 </body></html>`;
 }
