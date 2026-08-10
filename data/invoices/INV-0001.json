@@ -1,0 +1,24 @@
+{
+  "id": "INV-0001",
+  "number": "INV-0001",
+  "status": "sent",
+  "issueDate": "2026-08-10",
+  "dueDate": "2026-08-24",
+  "clientId": "insurance-co",
+  "clientSnapshot": {
+    "id": "insurance-co",
+    "name": "Insurance Company",
+    "contact": "Claims Department",
+    "email": "claims@example.com",
+    "address": ["PO Box 0000", "City, CA 00000"]
+  },
+  "reference": "Claim #00000000",
+  "items": [
+    { "description": "Site assessment and documentation", "quantity": 2, "rate": 45 },
+    { "description": "Debris clearing and haul-away", "quantity": 3, "rate": 45 },
+    { "description": "Replacement plantings — materials", "quantity": 1, "rate": 120 }
+  ],
+  "taxRate": 0,
+  "notes": "Work completed on site. Photographs available on request.",
+  "createdAt": "2026-08-10T09:00:00-07:00"
+}
