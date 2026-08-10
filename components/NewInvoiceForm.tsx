@@ -69,6 +69,8 @@ export default function NewInvoiceForm({ existing }: { existing?: any } = {}) {
       setItems([BLANK(m.business?.defaultRate ? String(m.business.defaultRate) : "")]);
       setTaxRate(String(m.business?.defaultTaxRate ?? 0));
       setTerms(m.business?.paymentTerms ?? "");
+      if (m.business?.defaultDueDays)
+        setDueDate(addDays(todayISO(), Number(m.business.defaultDueDays) || 14));
     }).catch(() => setErr("Could not load your details. Please refresh the page."));
   }, [existing]);
 
