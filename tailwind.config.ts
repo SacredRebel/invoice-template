@@ -1,35 +1,49 @@
 import type { Config } from "tailwindcss";
 
 /* ─────────────────────────────────────────────────────────────
-   THE PALETTE — change these hex values to restyle the whole app.
-   Everything (dashboard, buttons, the invoice itself) reads from here.
+   PALETTE — chosen for high contrast and easy reading.
+   Every text colour here passes WCAG AA on its background,
+   and the body text passes AAA. Change a hex to restyle the app.
    ───────────────────────────────────────────────────────────── */
 const config: Config = {
   content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}"],
   theme: {
     extend: {
       colors: {
-        ink:    "#1B1D1A",   // main text — near-black, warm
-        slate:  "#565B54",   // secondary text
-        mute:   "#8A9086",   // faint text, labels
-        paper:  "#FBFAF7",   // page background
+        ink:    "#14160F",   // headings + body — near-black (AAA on white)
+        body:   "#2C2F26",   // long text
+        soft:   "#4E5347",   // secondary — still AA at 17px
+        paper:  "#F7F6F1",   // page background
         card:   "#FFFFFF",   // panels
-        line:   "#E4E3DC",   // hairlines and borders
-        sage:   "#3F5347",   // PRIMARY — deep eucalyptus
-        moss:   "#6E8472",   // lighter green
-        wash:   "#EEF1EC",   // pale green tint
-        amber:  "#B8873A",   // paid / money highlight
-        rust:   "#9C5B3F",   // overdue
+        line:   "#C9C7BB",   // borders — deliberately visible
+        green:  "#254A32",   // PRIMARY. White text on this is AAA
+        green2: "#38684A",   // hover
+        mint:   "#E4EDE6",   // pale green fill
+        gold:   "#6E5210",   // PAID — dark enough to read on white
+        gold2:  "#F5EDD8",   // paid fill
+        red:    "#8A2B1B",   // OVERDUE
+        red2:   "#F8E4E0",   // overdue fill
       },
       fontFamily: {
         display: ["Instrument Serif", "Georgia", "Times New Roman", "serif"],
         sans:    ["Inter", "system-ui", "-apple-system", "Segoe UI", "sans-serif"],
       },
-      boxShadow: {
-        panel: "0 1px 2px rgba(27,29,26,.04), 0 8px 24px -12px rgba(27,29,26,.10)",
-        lift:  "0 2px 4px rgba(27,29,26,.05), 0 18px 40px -18px rgba(27,29,26,.18)",
+      fontSize: {
+        /* Deliberately large. Body text is 18px, never smaller than 16px. */
+        xs:   ["15px", { lineHeight: "1.5" }],
+        sm:   ["16px", { lineHeight: "1.55" }],
+        base: ["18px", { lineHeight: "1.6" }],
+        lg:   ["20px", { lineHeight: "1.5" }],
+        xl:   ["24px", { lineHeight: "1.35" }],
+        "2xl":["30px", { lineHeight: "1.25" }],
+        "3xl":["38px", { lineHeight: "1.15" }],
+        "4xl":["48px", { lineHeight: "1.1" }],
       },
-      borderRadius: { xl2: "14px" },
+      boxShadow: {
+        panel: "0 1px 3px rgba(20,22,15,.06), 0 6px 18px -10px rgba(20,22,15,.12)",
+        lift:  "0 2px 6px rgba(20,22,15,.08), 0 20px 44px -20px rgba(20,22,15,.22)",
+      },
+      borderRadius: { xl2: "12px" },
     },
   },
   plugins: [],
