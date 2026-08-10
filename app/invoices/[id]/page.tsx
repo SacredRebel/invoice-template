@@ -77,30 +77,45 @@ export default async function InvoicePage({ params }: { params: { id: string } }
             </div>
           </div>
 
-          <div className="mt-9 overflow-x-auto">
-            <table className="w-full min-w-[520px]">
-              <thead>
-                <tr className="border-b-[3px] border-ink">
-                  <th className="label pb-3 text-left">Description</th>
-                  <th className="label pb-3 text-right">Qty</th>
-                  <th className="label pb-3 text-right">Rate</th>
-                  <th className="label pb-3 text-right">Amount</th>
+          {/* Table from 640px up. On a phone each line stacks — no sideways scrolling. */}
+          <table className="mt-9 hidden w-full sm:table">
+            <thead>
+              <tr className="border-b-[3px] border-ink">
+                <th className="label pb-3 text-left">Description</th>
+                <th className="label pb-3 text-right">Qty</th>
+                <th className="label pb-3 text-right">Rate</th>
+                <th className="label pb-3 text-right">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              {inv.items.map((it, i) => (
+                <tr key={i} className="border-b border-line">
+                  <td className="py-4 pr-6 text-base text-ink">{it.description}</td>
+                  <td className="tnum py-4 text-right text-base text-body">{it.quantity}</td>
+                  <td className="tnum py-4 text-right text-base text-body">{money(it.rate, cur)}</td>
+                  <td className="tnum py-4 text-right text-base font-semibold text-ink">
+                    {money(it.quantity * it.rate, cur)}
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {inv.items.map((it, i) => (
-                  <tr key={i} className="border-b border-line">
-                    <td className="py-4 pr-6 text-base text-ink">{it.description}</td>
-                    <td className="tnum py-4 text-right text-base text-body">{it.quantity}</td>
-                    <td className="tnum py-4 text-right text-base text-body">{money(it.rate, cur)}</td>
-                    <td className="tnum py-4 text-right text-base font-semibold text-ink">
-                      {money(it.quantity * it.rate, cur)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </table>
+
+          <ul className="mt-8 space-y-4 sm:hidden">
+            {inv.items.map((it, i) => (
+              <li key={i} className="border-b border-line pb-4">
+                <p className="text-base font-semibold text-ink">{it.description}</p>
+                <div className="mt-1 flex items-baseline justify-between">
+                  <span className="tnum text-base text-soft">
+                    {it.quantity} × {money(it.rate, cur)}
+                  </span>
+                  <span className="tnum text-lg font-bold text-ink">
+                    {money(it.quantity * it.rate, cur)}
+                  </span>
+                </div>
+              </li>
+            ))}
+          </ul>
 
           <div className="mt-7 flex justify-end">
             <div className="w-full max-w-[340px] space-y-2 text-base">
