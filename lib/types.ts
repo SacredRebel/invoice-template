@@ -46,6 +46,8 @@ export type Business = {
   defaultTaxRate: number;
   currency: string;
   footerNote?: string;
+  logoUrl?: string;        // shown at the top of the invoice
+  defaultDueDays?: number; // how many days a new invoice gets
 };
 
 /* ── the only place money is calculated ── */
