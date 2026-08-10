@@ -35,7 +35,7 @@ export default async function CalendarPage() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="label">Payments due</p>
-          <h1 className="mt-2 font-display text-4xl text-ink">
+          <h1 className="mt-2 text-3xl text-ink sm:text-4xl">
             {first.toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: "UTC" })}
           </h1>
         </div>
@@ -48,8 +48,9 @@ export default async function CalendarPage() {
         </ul>
       </div>
 
-      <div className="panel overflow-x-auto p-4">
-        <div className="grid min-w-[640px] grid-cols-7 gap-2">
+      {/* Grid from 768px up. On a phone the list below is the calendar. */}
+      <div className="panel hidden p-4 md:block">
+        <div className="grid grid-cols-7 gap-2">
           {DAYS.map((d) => <div key={d} className="label pb-1 text-center">{d}</div>)}
           {Array.from({ length: pad }).map((_, i) => <div key={`p${i}`} />)}
           {Array.from({ length: days }).map((_, i) => {
@@ -81,7 +82,7 @@ export default async function CalendarPage() {
       </div>
 
       <section>
-        <h2 className="mb-4 font-display text-2xl text-ink">Still waiting on payment</h2>
+        <h2 className="mb-4 text-2xl text-ink">Still waiting on payment</h2>
         {waiting.length === 0 ? (
           <p className="panel p-7 text-lg text-body">Everything is paid.</p>
         ) : (
