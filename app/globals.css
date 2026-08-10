@@ -14,10 +14,10 @@
   h1, h2, h3 { @apply font-semibold text-ink; }
 
   .tnum { font-variant-numeric: tabular-nums lining-nums; }
-  ::selection { background: #4F46E5; color: #fff; }
+  ::selection { background: #2563EB; color: #fff; }
 
   *:focus-visible {
-    outline: 3px solid #4F46E5;
+    outline: 3px solid #2563EB;
     outline-offset: 2px;
     border-radius: 10px;
   }
@@ -54,6 +54,25 @@
 
   /* A settings section: heading, description, then the fields. */
   .section { @apply rounded-3xl bg-card p-6 shadow-card sm:p-7; }
+
+  /* The blue band the page content curves up over, as in the reference. */
+  .app-header { @apply bg-gradient-to-b from-forest to-brand text-white; }
+
+  /* The white sheet that rides over the blue band. */
+  .sheet { @apply -mt-7 rounded-t-[32px] bg-paper px-4 pt-7 sm:px-7; }
+
+  /* Search box that sits ON the blue. */
+  .search {
+    @apply w-full rounded-2xl bg-white/95 px-5 py-3 text-base text-ink
+           placeholder:text-soft focus:outline-none focus:ring-4 focus:ring-white/40;
+    min-height: 52px;
+  }
+
+  /* Segmented pill, like RECENT / LATEST in the reference. */
+  .seg     { @apply flex gap-1 rounded-2xl bg-card p-1.5 shadow-card; }
+  .seg-btn { @apply flex-1 rounded-xl2 px-3 py-2.5 text-center text-base font-semibold
+                    text-soft transition; }
+  .seg-on  { @apply bg-brand text-white shadow-brand; }
 
   .btn {
     @apply inline-flex items-center justify-center gap-2 rounded-2xl px-6 text-base
