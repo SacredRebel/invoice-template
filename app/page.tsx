@@ -100,7 +100,7 @@ export default async function Dashboard() {
                               : inv.status === "draft" ? "border-l-line" : "border-l-green";
                     return (
                       <tr key={inv.id}
-                          className={`border-b border-l-8 border-line ${bar} last:border-b-0 hover:bg-mint/50`}>
+                          className={`border-b-2 border-l-8 border-line ${bar} last:border-b-0 hover:bg-mint/50`}>
                         <td className="px-6 py-5">
                           <Link href={`/invoices/${inv.id}`}
                                 className="tnum text-lg font-semibold text-green underline underline-offset-4">
