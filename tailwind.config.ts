@@ -26,12 +26,16 @@ const config: Config = {
         green2: "#055C38",
         mint:   "#D1FAE5",   // pale green fill — paid
         wash:   "#F5F6F8",   // panel inside a card
-        gold:   "#B45309",
+        gold:   "#B45309",   // DRAFT / caution
         gold2:  "#FEF3C7",
         red:    "#B91C1C",   // OVERDUE
         red2:   "#FEE2E2",
-        blue:   "#1D4ED8",   // reference / info
-        blue2:  "#DBEAFE",
+        blue:   "#0E7490",   // REFERENCE / info — teal, distinct from the brand
+        blue2:  "#CFFAFE",
+        plum:   "#7E22CE",   // money already received
+        plum2:  "#F3E8FF",
+        field:  "#FBFCFD",   // input fill — lighter than the card it sits on
+        fieldline: "#94A3B8", // input edge — visibly darker than a divider
       },
       fontFamily: {
         sans: ["Inter", "system-ui", "-apple-system", "Segoe UI", "sans-serif"],
