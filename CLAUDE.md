@@ -102,7 +102,7 @@ Write to `data/invoices/INV-0007.json`:
 | Field | Rule |
 |---|---|
 | `id`, `number` | Identical. Same as the filename. |
-| `status` | `"draft"` · `"sent"` · `"paid"`. Use `"sent"` unless she says it's a draft. Never write `"overdue"` — the site works that out from the due date. |
+| `status` | `"draft"` · `"sent"` · `"paid"` · `"void"`. Use `"sent"` unless she says it's a draft. Never write `"overdue"` — the site works that out from the due date. |
 | `issueDate`, `dueDate` | **`YYYY-MM-DD` only.** No other format, ever. |
 | `clientId` | Lowercase, hyphens, no spaces. |
 | `clientSnapshot` | **Required.** A full copy of the client as they are today. This is what freezes the invoice — see below. |
@@ -113,6 +113,7 @@ Write to `data/invoices/INV-0007.json`:
 | `reference` | *Optional.* Claim, policy, PO or job number. |
 | `terms` | *Optional.* Only if this invoice differs from her usual terms. |
 | `notes` | *Optional.* Appears on the invoice. |
+| `paidAt` | *Optional.* Set by the site when she marks it paid. **Do not write it yourself.** |
 | `createdAt` | Full timestamp, Pacific time. |
 
 **Do not add fields that aren't in this list.** The website won't show them.
@@ -158,6 +159,12 @@ Read `data/invoices/`, find theirs, tell her the status and the amount in a sent
 **"Mark that one as paid."**
 Change `status` to `"paid"` in that file. Nothing else. Confirm which invoice first
 if there's any doubt.
+
+**"Cancel that invoice." / "That one was a mistake."**
+Set `status` to `"void"`. **Never delete the file and never reuse the number.**
+A voided invoice stays on record, stops counting towards what she is owed, and
+disappears from the calendar. Say: *"I've voided INV-0007. It's still on file,
+but it no longer counts as owed."*
 
 **"What am I owed?"**
 Add up the invoices that aren't `paid` or `draft` and tell her the number and how
@@ -221,7 +228,12 @@ path returning a fallback rather than throwing.
 **Dates are plain `YYYY-MM-DD` strings.** Never `new Date(iso)` without UTC handling —
 it shifts the day backwards in US timezones. Use the helpers in `lib/format.ts`.
 
-**Never delete anything in `data/invoices/`** without her saying so directly.
+**Never delete anything in `data/invoices/`.** Not even if she asks — void it
+instead. An invoice is a financial record and its number must never come round
+again. The website has no delete button and the API refuses one.
+
+**Never invent an invoice number.** Write the file only through the site, or by
+taking the highest existing number and adding one. Numbers are never reused.
 
 ---
 
