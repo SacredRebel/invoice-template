@@ -69,7 +69,7 @@ export default function ExportBar({ invoice, business }:{ invoice: Invoice; busi
 
       <div aria-live="polite" className="mt-3 min-h-[28px]">
         {said && (
-          <p className="rounded-lg bg-mint px-4 py-2 text-sm font-semibold text-green">✓ {said}</p>
+          <p className="rounded-2xl bg-mint px-4 py-2 text-sm font-semibold text-green">✓ {said}</p>
         )}
       </div>
     </div>
