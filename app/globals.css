@@ -5,25 +5,23 @@
 @layer base {
   html {
     -webkit-font-smoothing: antialiased;
-    -webkit-text-size-adjust: 100%;   /* stop iOS inflating text */
+    -webkit-text-size-adjust: 100%;
   }
   body {
     @apply bg-paper text-body font-sans text-base;
-    overflow-x: hidden;               /* nothing ever scrolls sideways */
+    overflow-x: hidden;
   }
   h1, h2, h3 { @apply font-semibold text-ink; }
 
   .tnum { font-variant-numeric: tabular-nums lining-nums; }
-
-  ::selection { background: #1B6B3A; color: #fff; }
+  ::selection { background: #4F46E5; color: #fff; }
 
   *:focus-visible {
-    outline: 3px solid #1B6B3A;
+    outline: 3px solid #4F46E5;
     outline-offset: 2px;
-    border-radius: 6px;
+    border-radius: 10px;
   }
 
-  /* iOS zooms any input under 16px. Ours are 18px, but be explicit. */
   input, select, textarea, button { font-size: 18px; font-family: inherit; }
 
   @media (prefers-reduced-motion: reduce) {
@@ -32,35 +30,50 @@
 }
 
 @layer components {
-  .label { @apply text-sm font-bold uppercase tracking-wide text-soft; }
+  /* Small-caps label. Soft colour, but bold and spaced so it stays readable. */
+  .label { @apply text-sm font-semibold uppercase tracking-[0.12em] text-soft; }
+
+  /* Surfaces separate by elevation and fill, not outlines. */
+  .card      { @apply rounded-3xl bg-card shadow-card; }
+  .card-flat { @apply rounded-3xl bg-card; }
+  .panel     { @apply rounded-3xl bg-card shadow-card; }
 
   .field {
-    @apply w-full rounded-xl border-2 border-line bg-card px-4 py-3 text-base text-ink
-           placeholder:text-soft/60 focus:border-green focus:outline-none transition;
-    min-height: 54px;
+    @apply w-full rounded-2xl bg-paper px-5 py-3.5 text-base text-ink
+           placeholder:text-soft/70 focus:bg-card focus:ring-2 focus:ring-brand
+           focus:outline-none transition;
+    min-height: 56px;
   }
-  .field:disabled { @apply bg-paper text-soft; }
+  .field:disabled { @apply text-soft; }
 
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl px-6 text-base
-           font-bold transition disabled:opacity-45 disabled:pointer-events-none;
-    min-height: 54px;
+    @apply inline-flex items-center justify-center gap-2 rounded-2xl px-6 text-base
+           font-semibold transition disabled:opacity-45 disabled:pointer-events-none;
+    min-height: 56px;
   }
-  .btn-primary { @apply btn bg-green text-white hover:bg-green2 active:bg-green2; }
-  .btn-quiet   { @apply btn border-2 border-line bg-card text-ink hover:border-green hover:text-green; }
-  .btn-danger  { @apply btn border-2 border-red/40 bg-card text-red hover:bg-red2; }
+  .btn-primary { @apply btn bg-brand text-white shadow-brand hover:bg-brand2; }
+  .btn-quiet   { @apply btn bg-paper text-ink hover:bg-line/50; }
+  .btn-ghost   { @apply btn bg-transparent text-body hover:bg-paper; }
+  .btn-danger  { @apply btn bg-red2 text-red hover:bg-red/15; }
 
-  .panel { @apply rounded-xl2 border-2 border-line bg-card shadow-panel; }
+  /* Status chips — filled tint, no outline, always carries the word. */
+  .chip { @apply inline-flex items-center rounded-full px-3.5 py-1.5 text-sm font-semibold; }
+
+  /* Nav item in the sidebar / bottom bar */
+  .nav-item {
+    @apply flex items-center gap-3 rounded-2xl px-4 py-3 text-base font-semibold
+           text-body transition hover:bg-paper;
+  }
+  .nav-item-on { @apply bg-tint text-brand; }
 }
 
 @media print {
-  @page { margin: 14mm; size: letter; }
+  @page { margin: 13mm; size: letter; }
   .no-print { display: none !important; }
   body { background: #fff !important; font-size: 11.5pt; }
 
-  /* Browsers drop background colours when printing unless told otherwise.
-     Without this the green band, the dark table header and the amount-due
-     block all disappear from the PDF the client receives. */
+  /* Browsers drop background colours when printing unless told otherwise —
+     without this the whole document prints as plain text on white. */
   .print-sheet, .print-sheet * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
@@ -71,12 +84,8 @@
     margin: 0 !important; padding: 0 !important;
     max-width: none !important; border-radius: 0 !important;
   }
-
-  /* The padding lives on the inner wrapper — zeroing the article alone
-     left ~14mm page margin PLUS 56px of it. Let @page own the margin. */
   .print-sheet .sheet-inner { padding: 0 !important; }
 
-  /* Nothing important gets cut in half across a page break. */
   .avoid-break { break-inside: avoid; page-break-inside: avoid; }
   thead { display: table-header-group; }
   tr, li { break-inside: avoid; page-break-inside: avoid; }

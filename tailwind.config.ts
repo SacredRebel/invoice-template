@@ -1,33 +1,39 @@
 import type { Config } from "tailwindcss";
 
-/* ─────────────────────────────────────────────────────────────
-   Built for easy reading. Every text colour passes WCAG AA on
-   its background; body text passes AAA. Change a hex to restyle.
-   ───────────────────────────────────────────────────────────── */
+/* ───────────────────────────────────────────────────
+   Crisp neutrals + one vivid accent. The greys are COOL and
+   neutral — no green mixed in, which is what made the old
+   palette look muddy. Every text colour still passes WCAG AA
+   on its background; body text passes AAA.
+   ─────────────────────────────────────────────────── */
 const config: Config = {
   content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}"],
   theme: {
     extend: {
       colors: {
-        ink:    "#0F1310",   // headings — near-black
-        body:   "#282D27",   // body text (AAA on paper and card)
-        soft:   "#565C54",   // secondary (AA at 16px+)
-        paper:  "#EFF3EE",   // page background — soft green-grey
+        ink:    "#0B1220",   // headings — cool near-black (19:1 on white)
+        body:   "#334155",   // body text (10.9:1 — AAA)
+        soft:   "#5B6B7B",   // secondary (5.3:1 — AA)
+        paper:  "#EFF1F5",   // page background — soft, not stark white
         card:   "#FFFFFF",
-        line:   "#BFC7BD",   // borders — visible on purpose
-        green:  "#1B6B3A",   // PRIMARY. White on this is AAA
-        green2: "#125129",   // hover / pressed
-        mint:   "#D8EEDF",   // pale green fill
-        gold:   "#7A5606",   // PAID
-        gold2:  "#FBEFD2",
-        red:    "#A32213",   // OVERDUE
-        red2:   "#FCE1DD",
-        blue:   "#17527E",   // reference / info
-        blue2:  "#DCEAF6",
+        line:   "#CBD5E1",   // borders — visible but not heavy
+        brand:  "#4F46E5",   // PRIMARY — indigo. White on it passes AA / AAA-large
+        brand2: "#4338CA",   // hover / pressed
+        tint:   "#E0E7FF",   // pale brand fill
+        forest: "#1E1B4B",   // deep hero surface — white on it is 15:1
+        forest2:"#3730A3",   // lighter end of the hero gradient
+        green:  "#067647",   // PAID only. Nothing else is green.
+        green2: "#055C38",
+        mint:   "#D1FAE5",   // pale green fill — paid
+        wash:   "#F5F6F8",   // panel inside a card
+        gold:   "#B45309",
+        gold2:  "#FEF3C7",
+        red:    "#B91C1C",   // OVERDUE
+        red2:   "#FEE2E2",
+        blue:   "#1D4ED8",   // reference / info
+        blue2:  "#DBEAFE",
       },
       fontFamily: {
-        /* One family, used at different weights. Cleaner and more legible
-           than mixing a serif in — and it looks more modern. */
         sans: ["Inter", "system-ui", "-apple-system", "Segoe UI", "sans-serif"],
         display: ["Inter", "system-ui", "sans-serif"],
       },
@@ -42,10 +48,13 @@ const config: Config = {
         "4xl":["48px", { lineHeight: "1.05", letterSpacing: "-0.03em" }],
       },
       boxShadow: {
-        panel: "0 1px 2px rgba(15,19,16,.05), 0 4px 14px -6px rgba(15,19,16,.10)",
-        lift:  "0 2px 6px rgba(15,19,16,.07), 0 18px 40px -18px rgba(15,19,16,.20)",
+        card:  "0 1px 2px rgba(11,18,32,.04), 0 8px 24px -12px rgba(11,18,32,.10)",
+        lift:  "0 2px 8px rgba(11,18,32,.05), 0 32px 64px -32px rgba(11,18,32,.28)",
+        brand: "0 8px 20px -8px rgba(79,70,229,.45)",
+        green: "0 8px 20px -8px rgba(6,118,71,.40)",
+        panel: "0 1px 2px rgba(11,18,32,.04), 0 8px 24px -12px rgba(11,18,32,.10)",
       },
-      borderRadius: { xl2: "14px" },
+      borderRadius: { xl2: "20px", "3xl": "24px" },
     },
   },
   plugins: [],
