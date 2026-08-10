@@ -34,7 +34,7 @@ export default function InvoiceActions({ id, status }: { id: string; status: str
 
   if (voided) {
     return (
-      <div className="ml-auto flex flex-wrap items-center gap-3">
+      <div className="flex w-full flex-col gap-3 sm:ml-auto sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
         {err && <span className="text-base font-semibold text-red">{err}</span>}
         <span className="text-base text-soft">This invoice was voided.</span>
         <button onClick={() => put({ status: "draft" }, "status")} disabled={busy !== null}
@@ -46,18 +46,18 @@ export default function InvoiceActions({ id, status }: { id: string; status: str
   }
 
   return (
-    <div className="ml-auto flex flex-wrap items-center gap-3">
+    <div className="flex w-full flex-col gap-3 sm:ml-auto sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
       {err && <span className="text-base font-semibold text-red">{err}</span>}
 
-      <Link href={`/invoices/${id}/edit`} className="btn-quiet">Edit</Link>
+      <Link href={`/invoices/${id}/edit`} className="btn-quiet w-full sm:w-auto">Edit</Link>
 
       <button onClick={() => put({ status: step.to }, "status")} disabled={busy !== null}
-              className="btn-quiet">
+              className="btn-quiet w-full sm:w-auto">
         {busy === "status" ? "Saving\u2026" : step.label}
       </button>
 
       {confirming ? (
-        <span className="flex flex-wrap items-center gap-2">
+        <span className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
           <span className="text-base font-semibold text-ink">
             Void it? The invoice stays on file and keeps its number.
           </span>
@@ -70,7 +70,7 @@ export default function InvoiceActions({ id, status }: { id: string; status: str
           </button>
         </span>
       ) : (
-        <button onClick={() => setConfirming(true)} className="btn-ghost">Void invoice</button>
+        <button onClick={() => setConfirming(true)} className="btn-ghost w-full sm:w-auto">Void invoice</button>
       )}
     </div>
   );
