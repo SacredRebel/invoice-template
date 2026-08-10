@@ -19,7 +19,8 @@ const rows = (r: Row[]): LineItem[] =>
 
 const NEW_CLIENT = "__new__";
 
-export default function NewInvoiceForm() {
+export default function NewInvoiceForm({ existing }: { existing?: any } = {}) {
+  const editing = Boolean(existing);
   const router = useRouter();
   const [meta, setMeta] = useState<any>(null);
   const [saving, setSaving] = useState(false);
@@ -40,12 +41,36 @@ export default function NewInvoiceForm() {
   useEffect(() => {
     fetch("/api/meta").then((r) => r.json()).then((m) => {
       setMeta(m);
+
+      if (existing) {
+        /* Editing: every field comes off the saved invoice, never the defaults. */
+        setClientId(existing.clientId ?? NEW_CLIENT);
+        setIssueDate(existing.issueDate ?? todayISO());
+        setDueDate(existing.dueDate ?? addDays(todayISO(), 14));
+        setReference(existing.reference ?? "");
+        setNotes(existing.notes ?? "");
+        setTerms(existing.terms ?? m.business?.paymentTerms ?? "");
+        setTaxRate(String(existing.taxRate ?? 0));
+        setDiscount(existing.discount ? String(existing.discount) : "");
+        setDeposit(existing.depositPaid ? String(existing.depositPaid) : "");
+        setItems(
+          (existing.items ?? []).length
+            ? existing.items.map((i: any) => ({
+                description: i.description ?? "",
+                quantity: String(i.quantity ?? ""),
+                rate: String(i.rate ?? ""),
+              }))
+            : [BLANK()]
+        );
+        return;
+      }
+
       setClientId(m.clients?.[0]?.id ?? NEW_CLIENT);
       setItems([BLANK(m.business?.defaultRate ? String(m.business.defaultRate) : "")]);
       setTaxRate(String(m.business?.defaultTaxRate ?? 0));
       setTerms(m.business?.paymentTerms ?? "");
     }).catch(() => setErr("Could not load your details. Please refresh the page."));
-  }, []);
+  }, [existing]);
 
   const cur = meta?.business?.currency ?? "USD";
   const li = rows(items);
@@ -69,6 +94,9 @@ export default function NewInvoiceForm() {
       };
     } else {
       client = meta?.clients?.find((c: any) => c.id === clientId);
+      /* The client may have been removed from the list since this invoice was
+         written — fall back to the snapshot rather than blocking the edit. */
+      if (!client && existing?.clientSnapshot?.id === clientId) client = existing.clientSnapshot;
       if (!client) return setErr("Choose who this invoice is for.");
     }
 
@@ -76,8 +104,9 @@ export default function NewInvoiceForm() {
     if (!clean.length) return setErr("Add at least one line describing the work.");
 
     setSaving(true);
-    const res = await fetch("/api/invoices", {
-      method: "POST", headers: { "Content-Type": "application/json" },
+    const res = await fetch(editing ? `/api/invoices/${existing.id}` : "/api/invoices", {
+      method: editing ? "PUT" : "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         status, issueDate, dueDate,
         clientId: client.id, clientSnapshot: client, items: clean,
@@ -100,7 +129,7 @@ export default function NewInvoiceForm() {
   const Step = ({ n, title, hint }: { n: number; title: string; hint?: string }) => (
     <div className="flex items-start gap-4">
       <span className="tnum grid h-11 w-11 shrink-0 place-items-center rounded-full
-                       bg-green text-lg font-bold text-white">{n}</span>
+                       bg-brand text-lg font-bold text-white">{n}</span>
       <div>
         <h2 className="text-2xl text-ink">{title}</h2>
         {hint && <p className="mt-0.5 text-base text-soft">{hint}</p>}
@@ -112,16 +141,18 @@ export default function NewInvoiceForm() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="label">New invoice</p>
-          <h1 className="tnum mt-2 text-3xl text-ink sm:text-4xl">{meta.nextNumber}</h1>
+          <p className="label">{editing ? "Editing invoice" : "New invoice"}</p>
+          <h1 className="tnum mt-2 text-3xl font-bold tracking-tight text-ink sm:text-4xl">
+            {editing ? existing.number : meta.nextNumber}
+          </h1>
         </div>
-        <p className="rounded-lg border-2 border-line bg-card px-4 py-2 text-base text-soft">
+        <p className="rounded-2xl bg-card px-4 py-2.5 text-base text-soft shadow-card">
           Prefer to talk? Ask Claude and it writes this for you.
         </p>
       </div>
 
       {!meta.canSave && (
-        <div className="panel border-l-8 border-l-gold border-gold/50 bg-gold2 p-5">
+        <div className="rounded-3xl bg-gold2 px-6 py-5">
           <p className="text-lg font-semibold text-ink">Saving is turned off</p>
           <p className="mt-1 text-base text-body">Connect GitHub first or this invoice won&rsquo;t be kept.</p>
         </div>
@@ -302,7 +333,7 @@ export default function NewInvoiceForm() {
               <span className="tnum">{money(taxAmount(li, num(taxRate), num(discount)), cur)}</span>
             </div>
           )}
-          <div className="flex items-baseline justify-between border-t-[3px] border-ink pt-3">
+          <div className="flex items-baseline justify-between border-t-2 border-line pt-3">
             <span className="font-semibold uppercase tracking-wide text-ink">
               {num(deposit) > 0 ? "Total" : "Total due"}
             </span>
@@ -317,7 +348,7 @@ export default function NewInvoiceForm() {
               </div>
               <div className="flex items-baseline justify-between border-t-2 border-ink pt-2">
                 <span className="font-semibold uppercase tracking-wide text-ink">Balance due</span>
-                <span className="tnum text-4xl text-green">
+                <span className="tnum text-4xl text-brand">
                   {money(balanceDue(li, num(taxRate), num(discount), num(deposit)), cur)}
                 </span>
               </div>
@@ -326,11 +357,13 @@ export default function NewInvoiceForm() {
         </div>
 
         <div className="mt-7 grid gap-3 sm:grid-cols-2">
-          <button onClick={() => save("sent")} disabled={saving} className="btn-primary">
-            {saving ? "Saving…" : "Save invoice"}
+          <button onClick={() => save(editing ? (existing.status ?? "sent") : "sent")}
+                  disabled={saving} className="btn-primary">
+            {saving ? "Saving…" : editing ? "Save changes" : "Save invoice"}
           </button>
-          <button onClick={() => save("draft")} disabled={saving} className="btn-quiet bg-card">
-            Save as a draft
+          <button onClick={() => (editing ? router.push(`/invoices/${existing.id}`) : save("draft"))}
+                  disabled={saving} className="btn-quiet">
+            {editing ? "Cancel" : "Save as a draft"}
           </button>
         </div>
       </section>
