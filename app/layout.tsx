@@ -31,10 +31,10 @@ function Nav() {
             + New
           </Link>
         </div>
-        <nav className="-mx-1 flex gap-1 overflow-x-auto pb-2">
+        <nav className="-mx-1 flex flex-wrap gap-1 pb-2">
           {links.map((l) => (
             <Link key={l.href} href={l.href}
-                  className="whitespace-nowrap rounded-lg px-4 py-2.5 text-base font-bold
+                  className="rounded-lg px-4 py-2.5 text-base font-bold
                              text-body hover:bg-mint hover:text-green">
               {l.label}
             </Link>

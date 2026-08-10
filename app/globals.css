@@ -57,10 +57,29 @@
   @page { margin: 14mm; size: letter; }
   .no-print { display: none !important; }
   body { background: #fff !important; font-size: 11.5pt; }
+
+  /* Browsers drop background colours when printing unless told otherwise.
+     Without this the green band, the dark table header and the amount-due
+     block all disappear from the PDF the client receives. */
+  .print-sheet, .print-sheet * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
   .print-sheet {
     box-shadow: none !important; border: none !important;
     margin: 0 !important; padding: 0 !important;
     max-width: none !important; border-radius: 0 !important;
   }
+
+  /* The padding lives on the inner wrapper — zeroing the article alone
+     left ~14mm page margin PLUS 56px of it. Let @page own the margin. */
+  .print-sheet .sheet-inner { padding: 0 !important; }
+
+  /* Nothing important gets cut in half across a page break. */
+  .avoid-break { break-inside: avoid; page-break-inside: avoid; }
+  thead { display: table-header-group; }
+  tr, li { break-inside: avoid; page-break-inside: avoid; }
+
   a { text-decoration: none !important; color: #000 !important; }
 }
