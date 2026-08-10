@@ -9,12 +9,13 @@ const owed = (i: any) => balanceDue(i.items, i.taxRate, i.discount, i.depositPai
 
 const CHIP: Record<string, string> = {
   draft:   "bg-gold2 text-gold",
+  void:    "bg-wash text-soft",
   sent:    "bg-tint text-brand",
   paid:    "bg-mint text-green",
   overdue: "bg-red2 text-red",
 };
 const WORD: Record<string, string> = {
-  draft: "Draft", sent: "Waiting", paid: "Paid", overdue: "Overdue",
+  draft: "Draft", sent: "Waiting", paid: "Paid", overdue: "Overdue", void: "Voided",
 };
 const initials = (n = "") =>
   n.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join("").toUpperCase() || "?";
@@ -24,12 +25,14 @@ export default async function Dashboard() {
   const cur = business.currency || "USD";
 
   const sum = (l: any[]) => l.reduce((s, i) => s + owed(i), 0);
-  const unpaid  = invoices.filter((i) => i.status !== "paid" && i.status !== "draft");
+  const live    = invoices.filter((i) => i.status !== "void");
+  const unpaid  = live.filter((i) => i.status !== "paid" && i.status !== "draft");
   const overdue = unpaid.filter((i) => isOverdue(i.dueDate, i.status));
   const waiting = unpaid.filter((i) => !isOverdue(i.dueDate, i.status));
-  const paidNow = invoices.filter(
-    (i) => i.status === "paid" && i.issueDate.slice(0, 7) === todayISO().slice(0, 7));
-  const drafts  = invoices.filter((i) => i.status === "draft");
+  /* Counted by WHEN IT WAS PAID, not when it was written. */
+  const paidNow = live.filter(
+    (i) => i.status === "paid" && (i.paidAt ?? i.issueDate).slice(0, 7) === todayISO().slice(0, 7));
+  const drafts  = live.filter((i) => i.status === "draft");
 
   const counts = [
     { n: waiting.length, label: "Waiting", tone: "text-brand", fill: "bg-tint"  },
