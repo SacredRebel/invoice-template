@@ -22,8 +22,8 @@ const config: Config = {
         rust:   "#9C5B3F",   // overdue
       },
       fontFamily: {
-        display: ["var(--font-display)", "Georgia", "serif"],
-        sans:    ["var(--font-sans)", "system-ui", "sans-serif"],
+        display: ["Instrument Serif", "Georgia", "Times New Roman", "serif"],
+        sans:    ["Inter", "system-ui", "-apple-system", "Segoe UI", "sans-serif"],
       },
       boxShadow: {
         panel: "0 1px 2px rgba(27,29,26,.04), 0 8px 24px -12px rgba(27,29,26,.10)",
