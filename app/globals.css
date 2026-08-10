@@ -38,13 +38,22 @@
   .card-flat { @apply rounded-3xl bg-card; }
   .panel     { @apply rounded-3xl bg-card shadow-card; }
 
+  /* An input has to look like an input BEFORE it is touched. A pale fill on a
+     white card reads as blank space — it needs its own edge. */
   .field {
-    @apply w-full rounded-2xl bg-paper px-5 py-3.5 text-base text-ink
-           placeholder:text-soft/70 focus:bg-card focus:ring-2 focus:ring-brand
-           focus:outline-none transition;
+    @apply w-full rounded-2xl border-2 border-fieldline bg-field px-5 py-3.5
+           text-base text-ink placeholder:text-soft/70
+           focus:border-brand focus:ring-4 focus:ring-brand/20 focus:outline-none transition;
     min-height: 56px;
   }
-  .field:disabled { @apply text-soft; }
+  .field:hover:not(:disabled) { @apply border-brand/60; }
+  .field:disabled { @apply border-line bg-paper text-soft; }
+
+  /* The label that sits above a field. */
+  .field-label { @apply mb-1.5 block text-base font-semibold text-ink; }
+
+  /* A settings section: heading, description, then the fields. */
+  .section { @apply rounded-3xl bg-card p-6 shadow-card sm:p-7; }
 
   .btn {
     @apply inline-flex items-center justify-center gap-2 rounded-2xl px-6 text-base
