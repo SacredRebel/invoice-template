@@ -1,0 +1,14 @@
+{
+  "name": "Karol",
+  "owner": "Karol",
+  "email": "REPLACE@example.com",
+  "phone": "(805) 000-0000",
+  "address": ["Street address", "Ojai, CA 93023"],
+  "license": "",
+  "paymentTerms": "Payment due within 14 days of receipt.",
+  "paymentMethods": ["Check", "Bank transfer", "Cash"],
+  "defaultRate": 45,
+  "defaultTaxRate": 0,
+  "currency": "USD",
+  "footerNote": "Thank you."
+}
