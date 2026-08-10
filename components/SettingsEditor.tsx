@@ -125,16 +125,16 @@ export default function SettingsEditor(
       )}
 
       {/* ── Sections ── */}
-      <div className="grid gap-2 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         {TABS.map((t) => (
           <button key={t.id} onClick={() => setTab(t.id)} aria-current={tab === t.id}
-                  className={`rounded-2xl px-4 py-4 text-left transition ${
+                  className={`rounded-2xl px-4 py-3.5 text-left transition ${
                     tab === t.id
                       ? "bg-brand text-white shadow-brand"
                       : "bg-card text-ink shadow-card hover:bg-tint"
                   }`}>
-            <span className="block text-base font-bold">{t.label}</span>
-            <span className={`mt-0.5 block text-sm ${tab === t.id ? "text-white/80" : "text-soft"}`}>
+            <span className="block text-base font-bold leading-tight">{t.label}</span>
+            <span className={`mt-0.5 hidden text-sm sm:block ${tab === t.id ? "text-white/80" : "text-soft"}`}>
               {t.hint}
             </span>
           </button>
