@@ -49,14 +49,16 @@ export function toPlainText(inv: Invoice, biz: Business) {
  *  These values are the same ones in tailwind.config.ts. If you restyle the
  *  invoice, change them here too or the Word copy stops matching the PDF.
  *  Word ignores a lot of CSS, so the coloured blocks use bgcolor= as well. */
-const INK   = "#0F1310";
-const BODY  = "#282D27";
-const LINE  = "#BFC7BD";
-const PAPER = "#EFF3EE";
-const GREEN = "#1B6B3A";
-const GOLD  = "#7A5606";
-const RED   = "#A32213";
-const BLUE  = "#17527E";
+const INK   = "#0B1220";
+const BODY  = "#334155";
+const LINE  = "#CBD5E1";
+const PAPER = "#F5F6F8";
+const BRAND = "#4F46E5";
+const HERO  = "#1E1B4B";
+const GREEN = "#067647";
+const GOLD  = "#B45309";
+const RED   = "#B91C1C";
+const BLUE  = "#4F46E5";
 const FONT  = "Inter,'Segoe UI',Calibri,Arial,sans-serif";
 
 export function toHTML(inv: Invoice, biz: Business) {
@@ -69,13 +71,13 @@ export function toHTML(inv: Invoice, biz: Business) {
   const state = isOverdue(inv.dueDate, inv.status) ? "overdue" : inv.status;
   const stamp: Record<string, { word: string; fg: string; bg: string }> = {
     draft:   { word: "Draft",               fg: BODY,  bg: PAPER     },
-    sent:    { word: "Waiting for payment", fg: GREEN, bg: "#D8EEDF" },
-    paid:    { word: "Paid",                fg: GOLD,  bg: "#FBEFD2" },
-    overdue: { word: "Overdue",             fg: RED,   bg: "#FCE1DD" },
+    sent:    { word: "Waiting for payment", fg: BRAND, bg: "#E0E7FF" },
+    paid:    { word: "Paid",                fg: GREEN, bg: "#D1FAE5" },
+    overdue: { word: "Overdue",             fg: RED,   bg: "#FEE2E2" },
   };
   const st   = stamp[state] ?? stamp.draft;
-  const bandBg = state === "paid" ? GOLD : state === "overdue" ? RED
-               : state === "draft" ? INK : GREEN;
+  const bandBg = state === "paid" ? GREEN : state === "overdue" ? RED
+               : state === "draft" ? INK : HERO;
   const bandLabel = state === "paid" ? "PAID IN FULL" : dep ? "BALANCE DUE" : "AMOUNT DUE";
 
   const cell = `padding:12px 10px;border-bottom:2px solid ${LINE};font-size:12pt;color:${INK};`;
@@ -91,7 +93,7 @@ export function toHTML(inv: Invoice, biz: Business) {
 body{font-family:${FONT};color:${BODY};font-size:12pt;line-height:1.55}</style>
 </head><body>
 
-<table width="100%" bgcolor="${GREEN}" style="border-collapse:collapse;background:${GREEN}">
+<table width="100%" bgcolor="${HERO}" style="border-collapse:collapse;background:${HERO}">
   <tr><td style="height:8px;line-height:8px;font-size:1pt">&nbsp;</td></tr>
 </table>
 
@@ -104,7 +106,7 @@ body{font-family:${FONT};color:${BODY};font-size:12pt;line-height:1.55}</style>
 </td>
 <td style="vertical-align:top;text-align:right">
   <div style="font-size:26pt;font-weight:bold;letter-spacing:-1px;color:${INK}">INVOICE</div>
-  <div style="font-size:15pt;font-weight:bold;color:${GREEN};margin-top:2px">${inv.number}</div>
+  <div style="font-size:15pt;font-weight:bold;color:${BRAND};margin-top:2px">${inv.number}</div>
   <div style="margin-top:10px"><table style="border-collapse:collapse;float:right"><tr>
     <td bgcolor="${st.bg}" style="background:${st.bg};border:2px solid ${st.fg};padding:7px 14px;
         font-size:12pt;font-weight:bold;color:${st.fg}">${st.word}</td>
@@ -161,7 +163,7 @@ ${inv.notes ? `<div style="margin-top:26px;border-top:2px solid ${LINE};padding-
 <td style="padding-top:14px;font-size:12pt;color:${BODY};vertical-align:bottom">
   <b style="color:${INK}">Payment</b><br>${inv.terms || biz.paymentTerms || ""}${biz.paymentMethods?.length ? "<br>Accepted: " + biz.paymentMethods.join(" · ") : ""}
 </td>
-${biz.footerNote ? `<td style="padding-top:14px;text-align:right;vertical-align:bottom;font-size:17pt;font-weight:bold;color:${GREEN}">${biz.footerNote}</td>` : ""}
+${biz.footerNote ? `<td style="padding-top:14px;text-align:right;vertical-align:bottom;font-size:17pt;font-weight:bold;color:${BRAND}">${biz.footerNote}</td>` : ""}
 </tr></table>
 </body></html>`;
 }
