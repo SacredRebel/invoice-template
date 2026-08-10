@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 const owed = (i: any) => balanceDue(i.items, i.taxRate, i.discount, i.depositPaid);
 
 const CHIP: Record<string, string> = {
-  draft:   "bg-wash text-body",
+  draft:   "bg-gold2 text-gold",
   sent:    "bg-tint text-brand",
   paid:    "bg-mint text-green",
   overdue: "bg-red2 text-red",
@@ -32,10 +32,10 @@ export default async function Dashboard() {
   const drafts  = invoices.filter((i) => i.status === "draft");
 
   const counts = [
-    { n: waiting.length, label: "Waiting" },
-    { n: overdue.length, label: "Overdue" },
-    { n: paidNow.length, label: "Paid" },
-    { n: drafts.length,  label: "Draft"   },
+    { n: waiting.length, label: "Waiting", tone: "text-brand", fill: "bg-tint"  },
+    { n: overdue.length, label: "Overdue", tone: "text-red",   fill: "bg-red2"  },
+    { n: paidNow.length, label: "Paid",    tone: "text-green", fill: "bg-mint"  },
+    { n: drafts.length,  label: "Draft",   tone: "text-gold",  fill: "bg-gold2" },
   ];
 
   return (
@@ -87,9 +87,9 @@ export default async function Dashboard() {
       {/* ── How many of each, at a glance ── */}
       <div className="grid grid-cols-4 gap-2 rounded-3xl bg-card p-2.5 shadow-card">
         {counts.map((c) => (
-          <div key={c.label} className="rounded-2xl py-3 text-center">
-            <p className="tnum text-2xl font-bold text-ink">{c.n}</p>
-            <p className="mt-0.5 text-sm font-medium text-soft">{c.label}</p>
+          <div key={c.label} className={`rounded-2xl py-3 text-center ${c.fill}`}>
+            <p className={`tnum text-2xl font-bold ${c.tone}`}>{c.n}</p>
+            <p className="mt-0.5 text-sm font-semibold text-body">{c.label}</p>
           </div>
         ))}
       </div>
