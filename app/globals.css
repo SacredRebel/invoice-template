@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { -webkit-font-smoothing: antialiased; }
+  body { @apply bg-paper text-ink font-sans; }
+
+  /* Money and dates must line up in columns. */
+  .tnum { font-variant-numeric: tabular-nums lining-nums; }
+
+  ::selection { background: #3F5347; color: #FBFAF7; }
+
+  *:focus-visible {
+    outline: 2px solid #3F5347;
+    outline-offset: 2px;
+    border-radius: 3px;
+  }
+}
+
+@layer components {
+  .label {
+    @apply text-[10px] uppercase tracking-[0.16em] text-mute font-medium;
+  }
+  .field {
+    @apply w-full rounded-lg border border-line bg-card px-3 py-2.5 text-[15px]
+           placeholder:text-mute/70 focus:border-sage focus:outline-none
+           focus:ring-2 focus:ring-sage/15 transition;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5
+           text-[14px] font-medium transition active:scale-[.985]
+           disabled:opacity-40 disabled:pointer-events-none;
+  }
+  .btn-primary { @apply btn bg-sage text-paper hover:bg-ink; }
+  .btn-quiet   { @apply btn border border-line bg-card text-ink hover:border-sage hover:text-sage; }
+  .panel       { @apply rounded-xl2 border border-line bg-card shadow-panel; }
+}
+
+/* ── Printing: the page becomes the invoice, nothing else. ── */
+@media print {
+  @page { margin: 14mm; size: letter; }
+  .no-print { display: none !important; }
+  body { background: #fff !important; }
+  .print-sheet {
+    box-shadow: none !important;
+    border: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    max-width: none !important;
+  }
+}
