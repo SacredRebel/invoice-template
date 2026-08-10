@@ -2,18 +2,51 @@
 
 import { useState } from "react";
 
-const toText = (v: any) => (Array.isArray(v) ? v.join("\n") : v ?? "");
+const toText  = (v: any) => (Array.isArray(v) ? v.join("\n") : v ?? "");
 const toLines = (v: string) => v.split("\n").map((s) => s.trim()).filter(Boolean);
+
+const TABS = [
+  { id: "business", label: "Your business",    hint: "Name, address and contact details" },
+  { id: "brand",    label: "Logo & look",      hint: "What sits at the top of an invoice" },
+  { id: "invoice",  label: "Invoice defaults", hint: "Rate, tax, terms and due date" },
+  { id: "clients",  label: "People you bill",  hint: "Saved clients" },
+] as const;
+type Tab = (typeof TABS)[number]["id"];
 
 function Saved({ show }: { show: boolean }) {
   if (!show) return null;
-  return <p role="status" className="rounded-xl bg-mint px-4 py-3 text-base font-bold text-green">✓ Saved</p>;
+  return (
+    <p role="status" className="rounded-2xl bg-mint px-4 py-3 text-base font-bold text-green">
+      \u2713 Saved
+    </p>
+  );
+}
+
+function Field({ label, hint, ...rest }: any) {
+  return (
+    <label className="block">
+      <span className="field-label">{label}</span>
+      {hint && <span className="mb-1.5 block text-sm text-soft">{hint}</span>}
+      <input className="field" {...rest} />
+    </label>
+  );
+}
+
+function Area({ label, hint, ...rest }: any) {
+  return (
+    <label className="block">
+      <span className="field-label">{label}</span>
+      {hint && <span className="mb-1.5 block text-sm text-soft">{hint}</span>}
+      <textarea className="field !min-h-[120px] py-4" {...rest} />
+    </label>
+  );
 }
 
 export default function SettingsEditor(
   { business, clients: initialClients, connected }:
   { business: any; clients: any[]; connected: boolean }
 ) {
+  const [tab, setTab] = useState<Tab>("business");
   const [biz, setBiz] = useState<any>({
     ...business,
     addressText: toText(business.address),
@@ -39,6 +72,9 @@ export default function SettingsEditor(
         ...biz,
         address: toLines(biz.addressText ?? ""),
         paymentMethods: (biz.methodsText ?? "").split(",").map((s: string) => s.trim()).filter(Boolean),
+        defaultRate: Number(biz.defaultRate) || 0,
+        defaultTaxRate: Number(biz.defaultTaxRate) || 0,
+        defaultDueDays: Number(biz.defaultDueDays) || 14,
       }),
     });
     setBusy(false);
@@ -57,158 +93,179 @@ export default function SettingsEditor(
     setCliSaved(true); setTimeout(() => setCliSaved(false), 3500);
   }
 
+  const addClient = () =>
+    setClients((cs) => [...cs, {
+      id: `client-${Date.now()}`, name: "", contact: "", email: "", phone: "", addressText: "",
+    }]);
+
+  const removeClient = (i: number) => {
+    const next = clients.filter((_, n) => n !== i);
+    setClients(next); saveClients(next);
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-7">
       <div>
         <p className="label">Settings</p>
-        <h1 className="mt-2 text-3xl text-ink">Your details</h1>
-        <p className="mt-3 max-w-2xl text-base text-body">
-          These appear on every invoice you send. Change anything and press Save.
-        </p>
+        <h1 className="mt-2 text-3xl font-bold tracking-tight text-ink sm:text-4xl">
+          How your invoices work
+        </h1>
       </div>
 
       {!connected && (
-        <div className="panel border-l-8 border-l-gold border-gold/50 bg-gold2 p-5">
-          <p className="text-lg font-bold text-ink">Not connected yet</p>
-          <p className="mt-1 text-base text-body">Changes won&rsquo;t be kept until GitHub is connected.</p>
+        <div className="rounded-3xl bg-gold2 px-6 py-5">
+          <p className="text-lg font-bold text-ink">Saving is turned off</p>
+          <p className="mt-1 text-base text-body">
+            You can change anything here, but it won&rsquo;t be kept until GitHub is connected.
+          </p>
         </div>
       )}
       {err && (
-        <p role="alert" className="panel border-l-8 border-l-red bg-red2 p-5 text-lg font-bold text-red">{err}</p>
+        <p className="rounded-2xl bg-red2 px-5 py-4 text-base font-semibold text-red">{err}</p>
       )}
 
-      <section className="panel border-l-8 border-l-green p-6 sm:p-8">
-        <h2 className="text-2xl text-ink">Your business</h2>
-        <div className="mt-6 grid gap-5 sm:grid-cols-2">
-          <div className="sm:col-span-2">
-            <label htmlFor="bname" className="label">Business name</label>
-            <input id="bname" value={biz.name ?? ""} onChange={(e) => upd("name", e.target.value)}
-                   placeholder="How it appears on the invoice" className="field mt-2" />
-          </div>
-          <div>
-            <label htmlFor="bemail" className="label">Email</label>
-            <input id="bemail" type="email" value={biz.email ?? ""}
-                   onChange={(e) => upd("email", e.target.value)} className="field mt-2" />
-          </div>
-          <div>
-            <label htmlFor="bphone" className="label">Phone</label>
-            <input id="bphone" type="tel" value={biz.phone ?? ""}
-                   onChange={(e) => upd("phone", e.target.value)} className="field mt-2" />
-          </div>
-          <div className="sm:col-span-2">
-            <label htmlFor="baddr" className="label">Address</label>
-            <p className="mt-1 text-sm text-soft">One line each — press Enter for a new line.</p>
-            <textarea id="baddr" rows={3} value={biz.addressText ?? ""}
-                      onChange={(e) => upd("addressText", e.target.value)} className="field mt-2 resize-y" />
-          </div>
-          <div>
-            <label htmlFor="blic" className="label">Licence number</label>
-            <input id="blic" value={biz.license ?? ""} onChange={(e) => upd("license", e.target.value)}
-                   placeholder="Leave blank if none" className="field mt-2" />
-          </div>
-          <div>
-            <label htmlFor="brate" className="label">Usual hourly rate</label>
-            <input id="brate" inputMode="decimal" value={biz.defaultRate ?? ""}
-                   onChange={(e) => upd("defaultRate", e.target.value)} className="field tnum mt-2" />
-          </div>
-          <div>
-            <label htmlFor="btax" className="label">Usual tax %</label>
-            <p className="mt-1 text-sm text-soft">Put 0 if you don&rsquo;t charge tax.</p>
-            <input id="btax" inputMode="decimal" value={biz.defaultTaxRate ?? ""}
-                   onChange={(e) => upd("defaultTaxRate", e.target.value)} className="field tnum mt-2" />
-          </div>
-          <div>
-            <label htmlFor="bmeth" className="label">How you accept payment</label>
-            <p className="mt-1 text-sm text-soft">Separate with commas.</p>
-            <input id="bmeth" value={biz.methodsText ?? ""}
-                   onChange={(e) => upd("methodsText", e.target.value)} className="field mt-2" />
-          </div>
-          <div className="sm:col-span-2">
-            <label htmlFor="bterms" className="label">Payment terms</label>
-            <textarea id="bterms" rows={2} value={biz.paymentTerms ?? ""}
-                      onChange={(e) => upd("paymentTerms", e.target.value)} className="field mt-2 resize-y" />
-          </div>
-          <div className="sm:col-span-2">
-            <label htmlFor="bfoot" className="label">Closing line on the invoice</label>
-            <input id="bfoot" value={biz.footerNote ?? ""} onChange={(e) => upd("footerNote", e.target.value)}
-                   placeholder="Thank you." className="field mt-2" />
-          </div>
-        </div>
-        <div className="mt-7 space-y-4">
-          <button onClick={saveBusiness} disabled={busy} className="btn-primary w-full sm:w-auto">
-            {busy ? "Saving…" : "Save my details"}
+      {/* \u2500\u2500 Sections \u2500\u2500 */}
+      <div className="grid gap-2 sm:grid-cols-4">
+        {TABS.map((t) => (
+          <button key={t.id} onClick={() => setTab(t.id)} aria-current={tab === t.id}
+                  className={`rounded-2xl px-4 py-4 text-left transition ${
+                    tab === t.id
+                      ? "bg-brand text-white shadow-brand"
+                      : "bg-card text-ink shadow-card hover:bg-tint"
+                  }`}>
+            <span className="block text-base font-bold">{t.label}</span>
+            <span className={`mt-0.5 block text-sm ${tab === t.id ? "text-white/80" : "text-soft"}`}>
+              {t.hint}
+            </span>
           </button>
-          <Saved show={bizSaved} />
-        </div>
-      </section>
+        ))}
+      </div>
 
-      <section className="panel border-l-8 border-l-blue p-6 sm:p-8">
-        <div className="flex flex-wrap items-baseline justify-between gap-3">
-          <h2 className="text-2xl text-ink">People you bill</h2>
-          <span className="text-base text-soft">{clients.length}</span>
-        </div>
+      {tab === "business" && (
+        <section className="section space-y-5">
+          <h2 className="text-2xl font-bold tracking-tight text-ink">Your business</h2>
+          <p className="-mt-3 text-base text-soft">This appears at the top of every invoice.</p>
+          <div className="grid gap-5 sm:grid-cols-2">
+            <Field label="Business name" value={biz.name ?? ""} onChange={(e: any) => upd("name", e.target.value)} />
+            <Field label="Your name" value={biz.owner ?? ""} onChange={(e: any) => upd("owner", e.target.value)} />
+            <Field label="Email" type="email" value={biz.email ?? ""} onChange={(e: any) => upd("email", e.target.value)} />
+            <Field label="Phone" value={biz.phone ?? ""} onChange={(e: any) => upd("phone", e.target.value)} />
+            <Field label="Licence number" hint="Leave empty if you don't have one"
+                   value={biz.license ?? ""} onChange={(e: any) => upd("license", e.target.value)} />
+            <Field label="Currency" value={biz.currency ?? "USD"} onChange={(e: any) => upd("currency", e.target.value)} />
+          </div>
+          <Area label="Address" hint="One line each"
+                value={biz.addressText ?? ""} onChange={(e: any) => upd("addressText", e.target.value)} />
+          <div className="flex flex-wrap items-center gap-4">
+            <button onClick={saveBusiness} disabled={busy} className="btn-primary">
+              {busy ? "Saving\u2026" : "Save business details"}
+            </button>
+            <Saved show={bizSaved} />
+          </div>
+        </section>
+      )}
 
-        <div className="mt-6 space-y-5">
-          {clients.length === 0 && (
-            <p className="text-base text-soft">Nobody yet. Add your first client below.</p>
+      {tab === "brand" && (
+        <section className="section space-y-5">
+          <h2 className="text-2xl font-bold tracking-tight text-ink">Logo &amp; look</h2>
+          <p className="-mt-3 text-base text-soft">
+            Paste a web address for your logo. It shows at the top of the invoice.
+          </p>
+
+          <Field label="Logo address" hint="Something ending in .png or .jpg"
+                 placeholder="https://\u2026/logo.png"
+                 value={biz.logoUrl ?? ""} onChange={(e: any) => upd("logoUrl", e.target.value)} />
+
+          {biz.logoUrl ? (
+            <div className="rounded-2xl bg-wash p-5">
+              <p className="label">Preview</p>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={biz.logoUrl} alt="Your logo" className="mt-3 max-h-16 w-auto" />
+            </div>
+          ) : (
+            <p className="rounded-2xl bg-wash px-5 py-4 text-base text-soft">
+              No logo yet \u2014 invoices show your business name instead.
+            </p>
           )}
+
+          <Field label="Closing line" hint="The friendly line at the bottom of an invoice"
+                 value={biz.footerNote ?? ""} onChange={(e: any) => upd("footerNote", e.target.value)} />
+
+          <div className="flex flex-wrap items-center gap-4">
+            <button onClick={saveBusiness} disabled={busy} className="btn-primary">
+              {busy ? "Saving\u2026" : "Save"}
+            </button>
+            <Saved show={bizSaved} />
+          </div>
+        </section>
+      )}
+
+      {tab === "invoice" && (
+        <section className="section space-y-5">
+          <h2 className="text-2xl font-bold tracking-tight text-ink">Invoice defaults</h2>
+          <p className="-mt-3 text-base text-soft">
+            What a new invoice starts with. You can still change any of it per invoice.
+          </p>
+          <div className="grid gap-5 sm:grid-cols-3">
+            <Field label="Hourly rate" inputMode="decimal" value={biz.defaultRate ?? ""}
+                   onChange={(e: any) => upd("defaultRate", e.target.value)} />
+            <Field label="Tax rate" hint="Percent \u2014 0 if none" inputMode="decimal"
+                   value={biz.defaultTaxRate ?? ""} onChange={(e: any) => upd("defaultTaxRate", e.target.value)} />
+            <Field label="Days until due" inputMode="numeric" value={biz.defaultDueDays ?? 14}
+                   onChange={(e: any) => upd("defaultDueDays", e.target.value)} />
+          </div>
+          <Area label="Payment terms" value={biz.paymentTerms ?? ""}
+                onChange={(e: any) => upd("paymentTerms", e.target.value)} />
+          <Field label="How you accept payment" hint="Separate with commas"
+                 value={biz.methodsText ?? ""} onChange={(e: any) => upd("methodsText", e.target.value)} />
+          <div className="flex flex-wrap items-center gap-4">
+            <button onClick={saveBusiness} disabled={busy} className="btn-primary">
+              {busy ? "Saving\u2026" : "Save defaults"}
+            </button>
+            <Saved show={bizSaved} />
+          </div>
+        </section>
+      )}
+
+      {tab === "clients" && (
+        <section className="space-y-4">
+          <div className="section">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <h2 className="text-2xl font-bold tracking-tight text-ink">People you bill</h2>
+                <p className="mt-1 text-base text-soft">{clients.length} saved</p>
+              </div>
+              <button onClick={addClient} className="btn-quiet">+ Add someone</button>
+            </div>
+          </div>
+
           {clients.map((c, i) => (
-            <div key={i} className="rounded-xl border-2 border-line bg-paper p-5">
-              <div className="flex items-center justify-between gap-3">
-                <span className="label">Client {i + 1}</span>
-                <button onClick={() => {
-                          if (!confirm(`Remove ${c.name || "this client"}?`)) return;
-                          const next = clients.filter((_, n) => n !== i);
-                          setClients(next); saveClients(next);
-                        }}
-                        className="rounded px-3 py-1 text-base font-bold text-red underline">Remove</button>
+            <div key={c.id ?? i} className="section space-y-5">
+              <div className="flex items-center justify-between gap-4">
+                <p className="text-lg font-bold text-ink">{c.name || "New client"}</p>
+                <button onClick={() => removeClient(i)} className="btn-ghost !min-h-[48px] !px-4 text-red">
+                  Remove
+                </button>
               </div>
-              <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                <div className="sm:col-span-2">
-                  <label htmlFor={`cn${i}`} className="label">Name</label>
-                  <input id={`cn${i}`} value={c.name ?? ""}
-                         onChange={(e) => setClient(i, "name", e.target.value)} className="field mt-2" />
-                </div>
-                <div>
-                  <label htmlFor={`cc${i}`} className="label">Contact person</label>
-                  <input id={`cc${i}`} value={c.contact ?? ""}
-                         onChange={(e) => setClient(i, "contact", e.target.value)} className="field mt-2" />
-                </div>
-                <div>
-                  <label htmlFor={`ce${i}`} className="label">Email</label>
-                  <input id={`ce${i}`} type="email" value={c.email ?? ""}
-                         onChange={(e) => setClient(i, "email", e.target.value)} className="field mt-2" />
-                </div>
-                <div className="sm:col-span-2">
-                  <label htmlFor={`ca${i}`} className="label">Address</label>
-                  <textarea id={`ca${i}`} rows={2} value={c.addressText ?? ""}
-                            onChange={(e) => setClient(i, "addressText", e.target.value)}
-                            className="field mt-2 resize-y" />
-                </div>
+              <div className="grid gap-5 sm:grid-cols-2">
+                <Field label="Name" value={c.name ?? ""} onChange={(e: any) => setClient(i, "name", e.target.value)} />
+                <Field label="Contact person" value={c.contact ?? ""} onChange={(e: any) => setClient(i, "contact", e.target.value)} />
+                <Field label="Email" type="email" value={c.email ?? ""} onChange={(e: any) => setClient(i, "email", e.target.value)} />
+                <Field label="Phone" value={c.phone ?? ""} onChange={(e: any) => setClient(i, "phone", e.target.value)} />
               </div>
+              <Area label="Address" hint="One line each"
+                    value={c.addressText ?? ""} onChange={(e: any) => setClient(i, "addressText", e.target.value)} />
             </div>
           ))}
-        </div>
 
-        <div className="mt-6 grid gap-3 sm:grid-cols-2">
-          <button onClick={() => setClients([...clients, { name: "", addressText: "" }])}
-                  className="btn-quiet">+ Add someone</button>
-          <button onClick={() => saveClients()} disabled={busy} className="btn-primary">
-            {busy ? "Saving…" : "Save the list"}
-          </button>
-        </div>
-        <div className="mt-4"><Saved show={cliSaved} /></div>
-      </section>
-
-      <div className={`panel border-l-8 p-6 ${connected ? "border-l-green bg-mint" : "border-l-gold bg-gold2"}`}>
-        <p className="text-lg font-bold text-ink">
-          {connected ? "✓ Connected — everything is being saved" : "Not connected yet"}
-        </p>
-        <p className="mt-1 text-base text-body">
-          {connected ? "Your invoices and details are stored safely and can't be lost."
-                     : "Nothing will be kept until GitHub is connected. See SETUP.md."}
-        </p>
-      </div>
+          <div className="flex flex-wrap items-center gap-4">
+            <button onClick={() => saveClients()} disabled={busy} className="btn-primary">
+              {busy ? "Saving\u2026" : "Save everyone"}
+            </button>
+            <Saved show={cliSaved} />
+          </div>
+        </section>
+      )}
     </div>
   );
 }
