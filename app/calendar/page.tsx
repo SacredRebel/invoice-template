@@ -1,27 +1,25 @@
 import Link from "next/link";
-import { getInvoices, getBusiness } from "@/lib/github";
+import { getInvoices, getBusiness } from "@/lib/data";
 import { money, prettyDate, todayISO, isOverdue } from "@/lib/format";
 import { total } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
-
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 export default async function CalendarPage() {
   const [invoices, business] = await Promise.all([getInvoices(), getBusiness()]);
-  const cur = business?.currency ?? "USD";
+  const cur = business.currency || "USD";
 
   const today = todayISO();
   const [Y, M] = today.split("-").map(Number);
   const first = new Date(Date.UTC(Y, M - 1, 1));
-  const daysInMonth = new Date(Date.UTC(Y, M, 0)).getUTCDate();
-  const startPad = (first.getUTCDay() + 6) % 7; // Monday-first
+  const days = new Date(Date.UTC(Y, M, 0)).getUTCDate();
+  const pad = (first.getUTCDay() + 6) % 7;
 
   const byDue: Record<string, any[]> = {};
-  for (const inv of invoices) (byDue[inv.dueDate] ||= []).push(inv);
+  for (const i of invoices) (byDue[i.dueDate] ||= []).push(i);
 
-  const monthName = first.toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: "UTC" });
-  const upcoming = invoices
+  const waiting = invoices
     .filter((i) => i.status !== "paid" && i.status !== "draft")
     .sort((a, b) => a.dueDate.localeCompare(b.dueDate));
 
@@ -29,32 +27,31 @@ export default async function CalendarPage() {
     <div className="space-y-8">
       <div>
         <p className="label">Payments due</p>
-        <h1 className="mt-1 font-display text-[40px] leading-tight">{monthName}</h1>
+        <h1 className="mt-2 font-display text-4xl text-ink">
+          {first.toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: "UTC" })}
+        </h1>
       </div>
 
-      <div className="panel overflow-hidden p-4">
-        <div className="grid grid-cols-7 gap-px">
-          {DAYS.map((d) => (
-            <div key={d} className="label pb-2 text-center">{d}</div>
-          ))}
-          {Array.from({ length: startPad }).map((_, i) => <div key={`pad${i}`} />)}
-          {Array.from({ length: daysInMonth }).map((_, i) => {
+      <div className="panel overflow-x-auto p-4">
+        <div className="grid min-w-[640px] grid-cols-7 gap-2">
+          {DAYS.map((d) => <div key={d} className="label pb-1 text-center">{d}</div>)}
+          {Array.from({ length: pad }).map((_, i) => <div key={`p${i}`} />)}
+          {Array.from({ length: days }).map((_, i) => {
             const day = i + 1;
             const iso = `${Y}-${String(M).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
             const due = byDue[iso] ?? [];
             const isToday = iso === today;
             return (
-              <div key={iso}
-                   className={`min-h-[92px] rounded-lg border p-2 transition
-                     ${isToday ? "border-sage bg-wash/60" : "border-line/70 bg-card"}`}>
-                <div className={`tnum text-[12px] ${isToday ? "font-semibold text-sage" : "text-mute"}`}>{day}</div>
+              <div key={iso} className={`min-h-[104px] rounded-lg border-2 p-2
+                ${isToday ? "border-green bg-mint" : "border-line bg-card"}`}>
+                <div className={`tnum text-base font-semibold ${isToday ? "text-green" : "text-soft"}`}>{day}</div>
                 <div className="mt-1 space-y-1">
                   {due.map((inv) => (
                     <Link key={inv.id} href={`/invoices/${inv.id}`}
-                          className={`block truncate rounded px-1.5 py-1 text-[11px] font-medium transition
-                            ${inv.status === "paid" ? "bg-amber/12 text-amber"
-                              : isOverdue(inv.dueDate, inv.status) ? "bg-rust/12 text-rust"
-                              : "bg-sage/10 text-sage hover:bg-sage/20"}`}>
+                          className={`block truncate rounded border-2 px-2 py-1 text-sm font-semibold
+                            ${inv.status === "paid" ? "border-gold/40 bg-gold2 text-gold"
+                              : isOverdue(inv.dueDate, inv.status) ? "border-red/40 bg-red2 text-red"
+                              : "border-green/40 bg-mint text-green"}`}>
                       {money(total(inv.items, inv.taxRate), cur)}
                     </Link>
                   ))}
@@ -66,20 +63,21 @@ export default async function CalendarPage() {
       </div>
 
       <section>
-        <h2 className="mb-3 font-display text-[22px]">Waiting on payment</h2>
-        {upcoming.length === 0 ? (
-          <p className="panel p-6 text-[15px] text-slate">Everything is paid. Nice.</p>
+        <h2 className="mb-4 font-display text-2xl text-ink">Still waiting on payment</h2>
+        {waiting.length === 0 ? (
+          <p className="panel p-7 text-lg text-body">Everything is paid.</p>
         ) : (
-          <div className="panel divide-y divide-line">
-            {upcoming.map((inv) => (
+          <div className="panel divide-y-2 divide-line">
+            {waiting.map((inv) => (
               <Link key={inv.id} href={`/invoices/${inv.id}`}
-                    className="flex items-center gap-4 px-5 py-4 hover:bg-wash/50 transition">
-                <span className="tnum w-24 font-medium">{inv.number}</span>
-                <span className="flex-1 truncate text-slate">{inv.clientSnapshot?.name}</span>
-                <span className={`tnum text-[13px] ${isOverdue(inv.dueDate, inv.status) ? "text-rust" : "text-mute"}`}>
+                    className="flex flex-wrap items-center gap-x-5 gap-y-1 px-6 py-5 hover:bg-mint/60">
+                <span className="tnum text-lg font-semibold text-green">{inv.number}</span>
+                <span className="flex-1 text-base text-body">{inv.clientSnapshot?.name}</span>
+                <span className={`tnum text-base font-semibold
+                  ${isOverdue(inv.dueDate, inv.status) ? "text-red" : "text-soft"}`}>
                   due {prettyDate(inv.dueDate)}
                 </span>
-                <span className="tnum w-28 text-right font-medium">
+                <span className="tnum text-lg font-semibold text-ink">
                   {money(total(inv.items, inv.taxRate), cur)}
                 </span>
               </Link>
