@@ -13,29 +13,36 @@ const NEXT: Record<string, { to: string; label: string }> = {
 
 export default function InvoiceActions({ id, status }: { id: string; status: string }) {
   const router = useRouter();
-  const [busy, setBusy] = useState<null | "status" | "delete">(null);
+  const [busy, setBusy] = useState<null | "status" | "void">(null);
   const [err, setErr] = useState<string | null>(null);
   const [confirming, setConfirming] = useState(false);
   const step = NEXT[status] ?? NEXT.draft;
+  const voided = status === "void";
 
-  async function setStatus() {
-    setBusy("status"); setErr(null);
+  async function put(body: any, which: "status" | "void") {
+    setBusy(which); setErr(null);
     const res = await fetch(`/api/invoices/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: step.to }),
+      body: JSON.stringify(body),
     });
     setBusy(null);
     if (!res.ok) { setErr((await res.json()).error ?? "Could not save."); return; }
+    setConfirming(false);
     router.refresh();
   }
 
-  async function remove() {
-    setBusy("delete"); setErr(null);
-    const res = await fetch(`/api/invoices/${id}`, { method: "DELETE" });
-    setBusy(null);
-    if (!res.ok) { setErr((await res.json()).error ?? "Could not delete."); return; }
-    router.push("/");
+  if (voided) {
+    return (
+      <div className="ml-auto flex flex-wrap items-center gap-3">
+        {err && <span className="text-base font-semibold text-red">{err}</span>}
+        <span className="text-base text-soft">This invoice was voided.</span>
+        <button onClick={() => put({ status: "draft" }, "status")} disabled={busy !== null}
+                className="btn-quiet">
+          {busy ? "Saving\u2026" : "Bring it back"}
+        </button>
+      </div>
+    );
   }
 
   return (
@@ -44,22 +51,26 @@ export default function InvoiceActions({ id, status }: { id: string; status: str
 
       <Link href={`/invoices/${id}/edit`} className="btn-quiet">Edit</Link>
 
-      <button onClick={setStatus} disabled={busy !== null} className="btn-quiet">
+      <button onClick={() => put({ status: step.to }, "status")} disabled={busy !== null}
+              className="btn-quiet">
         {busy === "status" ? "Saving\u2026" : step.label}
       </button>
 
       {confirming ? (
-        <span className="flex items-center gap-2">
-          <span className="text-base font-semibold text-ink">Delete it?</span>
-          <button onClick={remove} disabled={busy !== null} className="btn-danger !min-h-[48px] !px-4">
-            {busy === "delete" ? "Deleting\u2026" : "Yes, delete"}
+        <span className="flex flex-wrap items-center gap-2">
+          <span className="text-base font-semibold text-ink">
+            Void it? The invoice stays on file and keeps its number.
+          </span>
+          <button onClick={() => put({ status: "void" }, "void")} disabled={busy !== null}
+                  className="btn-danger !min-h-[48px] !px-4">
+            {busy === "void" ? "Voiding\u2026" : "Yes, void it"}
           </button>
           <button onClick={() => setConfirming(false)} className="btn-ghost !min-h-[48px] !px-4">
             Keep it
           </button>
         </span>
       ) : (
-        <button onClick={() => setConfirming(true)} className="btn-ghost">Delete</button>
+        <button onClick={() => setConfirming(true)} className="btn-ghost">Void invoice</button>
       )}
     </div>
   );
