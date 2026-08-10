@@ -17,7 +17,7 @@ function Saved({ show }: { show: boolean }) {
   if (!show) return null;
   return (
     <p role="status" className="rounded-2xl bg-mint px-4 py-3 text-base font-bold text-green">
-      \u2713 Saved
+      ✓ Saved
     </p>
   );
 }
@@ -124,7 +124,7 @@ export default function SettingsEditor(
         <p className="rounded-2xl bg-red2 px-5 py-4 text-base font-semibold text-red">{err}</p>
       )}
 
-      {/* \u2500\u2500 Sections \u2500\u2500 */}
+      {/* ── Sections ── */}
       <div className="grid gap-2 sm:grid-cols-4">
         {TABS.map((t) => (
           <button key={t.id} onClick={() => setTab(t.id)} aria-current={tab === t.id}
@@ -158,7 +158,7 @@ export default function SettingsEditor(
                 value={biz.addressText ?? ""} onChange={(e: any) => upd("addressText", e.target.value)} />
           <div className="flex flex-wrap items-center gap-4">
             <button onClick={saveBusiness} disabled={busy} className="btn-primary">
-              {busy ? "Saving\u2026" : "Save business details"}
+              {busy ? "Saving…" : "Save business details"}
             </button>
             <Saved show={bizSaved} />
           </div>
@@ -173,7 +173,7 @@ export default function SettingsEditor(
           </p>
 
           <Field label="Logo address" hint="Something ending in .png or .jpg"
-                 placeholder="https://\u2026/logo.png"
+                 placeholder="https://…/logo.png"
                  value={biz.logoUrl ?? ""} onChange={(e: any) => upd("logoUrl", e.target.value)} />
 
           {biz.logoUrl ? (
@@ -184,7 +184,7 @@ export default function SettingsEditor(
             </div>
           ) : (
             <p className="rounded-2xl bg-wash px-5 py-4 text-base text-soft">
-              No logo yet \u2014 invoices show your business name instead.
+              No logo yet — invoices show your business name instead.
             </p>
           )}
 
@@ -193,7 +193,7 @@ export default function SettingsEditor(
 
           <div className="flex flex-wrap items-center gap-4">
             <button onClick={saveBusiness} disabled={busy} className="btn-primary">
-              {busy ? "Saving\u2026" : "Save"}
+              {busy ? "Saving…" : "Save"}
             </button>
             <Saved show={bizSaved} />
           </div>
@@ -209,7 +209,7 @@ export default function SettingsEditor(
           <div className="grid gap-5 sm:grid-cols-3">
             <Field label="Hourly rate" inputMode="decimal" value={biz.defaultRate ?? ""}
                    onChange={(e: any) => upd("defaultRate", e.target.value)} />
-            <Field label="Tax rate" hint="Percent \u2014 0 if none" inputMode="decimal"
+            <Field label="Tax rate" hint="Percent — 0 if none" inputMode="decimal"
                    value={biz.defaultTaxRate ?? ""} onChange={(e: any) => upd("defaultTaxRate", e.target.value)} />
             <Field label="Days until due" inputMode="numeric" value={biz.defaultDueDays ?? 14}
                    onChange={(e: any) => upd("defaultDueDays", e.target.value)} />
@@ -220,7 +220,7 @@ export default function SettingsEditor(
                  value={biz.methodsText ?? ""} onChange={(e: any) => upd("methodsText", e.target.value)} />
           <div className="flex flex-wrap items-center gap-4">
             <button onClick={saveBusiness} disabled={busy} className="btn-primary">
-              {busy ? "Saving\u2026" : "Save defaults"}
+              {busy ? "Saving…" : "Save defaults"}
             </button>
             <Saved show={bizSaved} />
           </div>
@@ -260,7 +260,7 @@ export default function SettingsEditor(
 
           <div className="flex flex-wrap items-center gap-4">
             <button onClick={() => saveClients()} disabled={busy} className="btn-primary">
-              {busy ? "Saving\u2026" : "Save everyone"}
+              {busy ? "Saving…" : "Save everyone"}
             </button>
             <Saved show={cliSaved} />
           </div>
