@@ -37,15 +37,15 @@ export default async function InvoicePage({ params }: { params: { id: string } }
 
   return (
     <div className="space-y-6">
-      <div className="no-print flex flex-wrap items-center gap-4">
-        <Link href="/" className="btn-ghost !min-h-[48px] !px-4">← All invoices</Link>
+      <div className="no-print flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+        <Link href="/" className="btn-ghost !min-h-[48px] justify-start !px-4 sm:justify-center">← All invoices</Link>
         <InvoiceActions id={inv.id} status={inv.status} />
       </div>
 
       <ExportBar invoice={inv} business={business} />
 
       {/* ── THE INVOICE ── what the client receives ── */}
-      <article className="print-sheet mx-auto overflow-hidden rounded-3xl bg-card shadow-lift">
+      <article className="print-sheet mx-auto max-w-[880px] overflow-hidden rounded-3xl bg-card shadow-lift">
         <div className="sheet-inner px-6 py-8 sm:px-10 sm:py-10">
 
           {/* ── Masthead ── */}
@@ -96,7 +96,7 @@ export default async function InvoicePage({ params }: { params: { id: string } }
             )}
 
             {/* Labelled columns — issued / due / reference */}
-            <div className="mt-5 grid grid-cols-2 gap-3 rounded-2xl bg-card px-5 py-4 sm:grid-cols-3">
+            <div className="mt-5 grid grid-cols-2 gap-x-3 gap-y-4 rounded-2xl bg-card px-5 py-4 sm:grid-cols-3">
               <div>
                 <p className="text-sm font-medium text-soft">Issued</p>
                 <p className="tnum mt-1 text-base font-semibold text-ink">{prettyDate(inv.issueDate)}</p>
