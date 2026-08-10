@@ -87,13 +87,27 @@ export default function NewInvoiceForm({ existing }: { existing?: any } = {}) {
 
     if (clientId === NEW_CLIENT) {
       if (!newClient.name.trim()) return setErr("Type the client's name.");
+      const slug = newClient.name.trim().toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+      if (!slug) return setErr("That name needs at least one letter or number.");
       client = {
-        id: newClient.name.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
+        id: slug,
         name: newClient.name.trim(),
         contact: newClient.contact.trim() || undefined,
         email: newClient.email.trim() || undefined,
+        phone: (newClient as any).phone?.trim() || undefined,
         address: newClient.address.split("\n").map((s) => s.trim()).filter(Boolean),
       };
+
+      /* Remember this person, so next time they are in the list instead of
+         having to be typed again. Never blocks the invoice if it fails. */
+      try {
+        const rest = (meta?.clients ?? []).filter((c: any) => c.id !== slug);
+        await fetch("/api/clients", {
+          method: "PUT", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify([...rest, client]),
+        });
+      } catch { /* the invoice still saves */ }
     } else {
       client = meta?.clients?.find((c: any) => c.id === clientId);
       /* The client may have been removed from the list since this invoice was
